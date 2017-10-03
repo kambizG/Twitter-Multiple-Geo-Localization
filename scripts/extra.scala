@@ -49,7 +49,7 @@ hourD.map(_._2).collect
 //partition_temporal_distribution(3119, "tw_lo.txt", "tp")
 
 //######################################################################################
-// Extract Frequent locations for each user with less than X km threshold
+// Get Frequent locations for each user with less than X km threshold
 //######################################################################################
 case class Cons[+A] (val value: A, val next: Cons[A])
 
