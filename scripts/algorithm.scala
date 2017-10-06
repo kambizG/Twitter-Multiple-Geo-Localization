@@ -1,13 +1,13 @@
 //#################################################################################################
 // Social Graph Only
 //#################################################################################################
-:load /home/kambiz/data/tw_data_all_clean/script/extra.scala
+:load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
 extract_UMLP("tw_lo.txt", "tp_louvain", "UMLP", 5)
 
-:load /home/kambiz/data/tw_data_all_clean/script/extra.scala
+:load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
 extract_UMLP("st_all_uniq.txt", "result/tp", "UMLP", 10)
 
-:load /home/kambiz/data/tw_data_all_clean/script/extra.scala
+:load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
 extract_UMLP("stats.txt", "mf_partitions/tp", "UMLP", 6)
 
 :load /home/kambiz/data/tw_data_all_clean/script/extra.scala
@@ -27,13 +27,13 @@ temp1.union(temp2).reduceByKey(_+_).map(x => (x._1 + "\t" + x._2)).saveAsTextFil
 //#################################################################################################
 // Social graph + Time
 //#################################################################################################
-:load /home/kambiz/data/tw_data_all_clean/script/extra.scala
+:load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
 extract_UDTMLP("st_all_uniq.txt", "result/tp", "UDTMLP", 10)
 
-:load /home/kambiz/data/tw_data_all_clean/script/extra.scala
+:load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
 extract_UDTMLP("tw_lo.txt", "tp_louvain", "UDTMLP_1H", 5)
 
-:load /home/kambiz/data/tw_data_all_clean/script/extra.scala
+:load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
 
 def extract_CDF_UDTMLP(in: String, res: String) = {
 val UDTMLP = sc.textFile(in).map(_.split(",")).map(x => (x(0), (x(1), x(2), (x(3).toDouble,x(4).toDouble), x(5))))
