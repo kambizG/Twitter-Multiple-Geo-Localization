@@ -59,6 +59,18 @@ extract_CDF_UDTMLP("UDTMLP_3H.txt", "res_UDTMLP_3H")
 // Social graph + Time + Text
 //#################################################################################################
 
+//##################
+//read stats, clean, remove stopwords, write for topic extraction
+//##################
+:load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
+val sw = sc.textFile("../longstoplist.txt").collect
+val stats = sc.textFile("tw_lo.txt").map(_.split(",",7)).map(x => (x(0), x(6)))
+val cleanStats = stats.map(x => (x._1, cleanRemoveStopWords(x._2, sw, 2, 15))
+cleanStats.map(x => x._1 + "," + x._2).saveAsTextFile("stats_clean")
+//##################
+
+
+
 val dateparser = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
 val stats = sc.textFile("tw_lo.txt").map(_.split(",",7)).map(x => (x(1),(dateparser.parse(x(2)).getDay, if(dateparser.parse(x(2)).getHours - 2 < 6) 0 else if (dateparser.parse(x(2)).getHours - 7 < 12) 1 else 2, x(4).toDouble, x(3).toDouble, x(6)))).filter(x => x._2._1 > 0 && x._2._1 < 6)
 
