@@ -1,4 +1,18 @@
 //######################################################################################
+// Preprocessing
+// Clean Documents and Remove stopwords using the longstopwords.txt
+//######################################################################################
+def cleanRemoveStopWords(document: String, sw: Array[String], minLen: Integer, maxLen: Integer): String = {
+var words = document.trim.toLowerCase().replaceAll("[!\"“”$%&'*+,./:;<=>?\\[\\]^`{\\|}~()]", " ").replaceAll("http", "").replaceAll("\\\\", "").replaceAll("\\s+", " ").split("\\s")
+var res = ""
+for(w <- words){
+if(w.length > minLen && w.length < maxLen && !sw.contains(w))
+res += w + " "
+}
+return res.trim
+}
+
+//######################################################################################
 // Extract Location Count Frequency
 //####################################################################################
 def extract_location_count_frequency(status_File: String, outPut: String) ={
