@@ -59,7 +59,6 @@ extract_CDF_UDTMLP("UDTMLP_3H.txt", "res_UDTMLP_3H")
 // Social graph + Text
 //#################################################################################################
 
-
 //read stats, clean, remove stopwords, write for topic extraction
 //##################
 :load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
