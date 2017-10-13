@@ -65,7 +65,7 @@ extract_CDF_UDTMLP("UDTMLP_3H.txt", "res_UDTMLP_3H")
 :load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
 val sw = sc.textFile("../longstoplist.txt").collect
 val stats = sc.textFile("tw_lo.txt").map(_.split(",",7)).map(x => (x(0), x(6)))
-val cleanStats = stats.map(x => (x._1, cleanRemoveStopWords(x._2, sw, 2, 15))
+val cleanStats = stats.map(x => (x._1, cleanRemoveStopWords(x._2, sw, 2, 15)))
 cleanStats.map(x => x._1 + "," + x._2).saveAsTextFile("stats_clean")
 //##################
 
