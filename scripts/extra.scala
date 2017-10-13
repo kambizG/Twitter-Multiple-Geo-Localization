@@ -62,36 +62,6 @@ hourD.map(_._2).collect
 //top_n_partitions(10, "tp")
 //partition_temporal_distribution(3119, "tw_lo.txt", "tp")
 
-//######################################################################################
-// Get Frequent locations for each user with less than X km threshold
-//######################################################################################
-case class Cons[+A] (val value: A, val next: Cons[A])
-
-def get_freq_locations(locations:List[(Double, Double)]): List[(Double, Double)] = {
-var freqLocations = Cons(locations(0), null)
-for(i <- 1 to locations.size -1){
-val l = locations(i)
-var found = false
-var current = freqLocations
-while(current != null && !found){
- val fl = current.value
- if(geoDistance_points(l, fl) < 5){
-  found = true
-} 
- current = current.next
-}
-if(!found){
- freqLocations = Cons(l, freqLocations)
-}}
-var result = List(freqLocations.value)
-var next = freqLocations.next
-while(next != null){
- result = result :+  next.value
- next = next.next
-}
-return result
-}
-
 //#####################################################################################
 // geoMetric Distance
 //#####################################################################################
@@ -112,6 +82,37 @@ return (geoDist * 1.609344)
 def geoDistance_points(gp1:(Double,Double), gp2:(Double, Double)): Double = {
 return geoDistance(gp1._1, gp1._2, gp2._1, gp2._2)
 }
+
+//######################################################################################
+// Get Frequent locations for each user with less than X km threshold
+//######################################################################################
+case class Cons[+A] (val value: A, val next: Cons[A])
+
+def get_freq_locations(locations:List[(Double, Double)]): List[(Double, Double)] = {
+var freqLocations = Cons(locations(0), null)
+for(i <- 1 to locations.size -1){
+val l = locations(i)
+var found = false
+var current = freqLocations
+while(current != null && !found){
+ val fl = current.value
+ if(geoDistance_points(l, fl) < 5){
+  found = true
+}
+ current = current.next
+}
+if(!found){
+ freqLocations = Cons(l, freqLocations)
+}}
+var result = List(freqLocations.value)
+var next = freqLocations.next
+while(next != null){
+ result = result :+  next.value
+ next = next.next
+}
+return result
+}
+
 //####################################################################################
 // Extract Frequent locations for each user with less than X km threshold
 //####################################################################################
