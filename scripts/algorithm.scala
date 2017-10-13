@@ -70,6 +70,7 @@ cleanStats.filter(_._2.split("\\s").size > 3).map(x => x._1 + "," + x._2).saveAs
 
 // Extract Topics and create sid_topic.txt
 //##################
+/*
 dat stats_clean/part* >> stats_clean.txt
 rm -r stats_clean/
 mkdir LDA
@@ -77,11 +78,13 @@ cat stats_clean.txt | cut -d',' -f2 >> LDA/doc_info.txt
 wc -l stats_clean.txt
 sed -i '1s/^/6587169\n/' LDA/doc_info.txt
 java -mx20g -cp bin:lib/args4j-2.0.6.jar jgibblda.LDA -est -alpha 0.05 -beta 0.01 -ntopics 200 -niters 5 -savestep 501 -twords 0 -dir /home/kambiz/data/tw_data_all_clean/lon/LDA/ -dfile doc_info.txt
-
+*/
 sc.textFile("LDA/model-final.theta").map(_.split("\\s").map(_.toDouble).zipWithIndex.maxBy(_._1)._2).saveAsTextFile("topics")
+/*
 cat topics/part-0* >> topics.txt
 cat stats_clean.txt | cut -d',' -f1 >> sids.txt
 paste sids.txt topcis.txt >> sid_topic.txt
+*/
 //##################
 
 :load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
