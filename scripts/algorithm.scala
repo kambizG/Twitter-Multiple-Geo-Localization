@@ -56,7 +56,7 @@ extract_CDF_UDTMLP("UDTMLP_1H.txt", "res_UDTMLP_1H")
 extract_CDF_UDTMLP("UDTMLP_3H.txt", "res_UDTMLP_3H")
 
 //#################################################################################################
-// Social graph + Time + Text
+// Social graph + Text
 //#################################################################################################
 
 //##################
@@ -68,6 +68,13 @@ val stats = sc.textFile("tw_lo.txt").map(_.split(",",7)).map(x => (x(0), x(6)))
 val cleanStats = stats.map(x => (x._1, cleanRemoveStopWords(x._2, sw, 2, 15)))
 cleanStats.filter(_._2.split("\\s").size > 3).map(x => x._1 + "," + x._2).saveAsTextFile("stats_clean")
 //##################
+
+:load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
+extract_UDTMLP("tw_lo.txt", "sid_topic.txt", "tp", "UTMLP", 5)
+
+
+
+
 
 
 
