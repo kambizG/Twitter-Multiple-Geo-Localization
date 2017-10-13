@@ -66,7 +66,7 @@ extract_CDF_UDTMLP("UDTMLP_3H.txt", "res_UDTMLP_3H")
 val sw = sc.textFile("../longstoplist.txt").collect
 val stats = sc.textFile("tw_lo.txt").map(_.split(",",7)).map(x => (x(0), x(6)))
 val cleanStats = stats.map(x => (x._1, cleanRemoveStopWords(x._2, sw, 2, 15)))
-cleanStats.map(x => x._1 + "," + x._2).saveAsTextFile("stats_clean")
+cleanStats.filter(_._2.split("\\s").size < 3).map(x => x._1 + "," + x._2).saveAsTextFile("stats_clean")
 //##################
 
 
