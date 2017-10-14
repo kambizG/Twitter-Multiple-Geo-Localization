@@ -277,3 +277,6 @@ val UP = sc.textFile(partitions).filter(x => !x.startsWith("#")).zipWithIndex().
 val UTDTMLP = UTDTML.join(UP)
 UTDTMLP.map({case(u, ((top, day, time, (lat, lon)), p)) => u + "," + top + "," + day + "," + time  + "," + lat + "," + lon + "," + p}).saveAsTextFile(output)
 }
+
+//Test Case
+//extract_UTDTMLP("tw_lo.txt", "sid_topic_150.txt", "tp", "UTDTMLP", 5)
