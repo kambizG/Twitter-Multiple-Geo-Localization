@@ -224,8 +224,8 @@ def createSample(dateFrom:String , dateTo: String, stats: String, mutualFriends:
 val dateparser = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
 val from = dateparser.parse(dateFrom).getTime
 val to = dateparser.parse(dateTo).getTime
-val stats = sc.textFile(stats).map(x => (dateparser.parse(x.split(",")(2)).getTime, x))
-val sample_stats = stats.filter(x => x._1 > from && x._1 < to)
+val st = sc.textFile(stats).map(x => (dateparser.parse(x.split(",")(2)).getTime, x))
+val sample_stats = st.filter(x => x._1 > from && x._1 < to)
 sample_stats.map(_._2).saveAsTextFile("sample_data")
 val sample_ids = sample_stats.map(_.split(",")(1)).map(x => (x, 1)).reduceByKey(_+_)
 val mf = sc.textFile(mutualFriends).map(_.split(",")).map(x => (x(0), x(1)))
