@@ -268,7 +268,7 @@ UTMLP.map({case(u, ((top, (lat, lon)), p)) => u + "," + top + "," + lat + "," + 
 def extract_UTDTMLP(stats: String, topics: String , partitions: String, output: String, min_count: Int) ={
 val dateparser = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
 val SUDL = sc.textFile(stats).map(_.split(",",7)).map(x => (x(0),(x(1), dateparser.parse(x(2)), (x(4).toDouble, x(3).toDouble))))
-val SUDTL = UDL.map({case(s, (u, d, l)) => (s, (u, d.getDay, d.getHours, l))}).map({case(s, (u, d, t, l)) => (s, (u, if(d % 6 > 0) 1 else 0, if(t - 2 < 6) 0 else if (t - 7 < 12) 1 else 2, l))})
+val SUDTL = SUDL.map({case(s, (u, d, l)) => (s, (u, d.getDay, d.getHours, l))}).map({case(s, (u, d, t, l)) => (s, (u, if(d % 6 > 0) 1 else 0, if(t - 2 < 6) 0 else if (t - 7 < 12) 1 else 2, l))})
 val ST = sc.textFile(topics).map(_.split("\t")).map(x => (x(0), x(1)))
 val UDTLT = SUDTL.join(ST).map({case(s,((u, day, time, loc),top)) => (u, (day, time, loc, top))})
 val valid_users = UDTLT.map(x => (x._1, 1)).reduceByKey(_+_).filter(_._2 > min_count)
