@@ -217,6 +217,23 @@ result = n1._1
 return (result,text) }
 
 //######################################################################################
+// Extract Sample Data and Network between two dates "from" and "to"
+// Sample date: "EEE MMM dd HH:mm:ss zzz yyyy" = "Tue Sep 23 23:52:13 CEST 2014"
+//######################################################################################
+def createSample(dateFrom:String , dateTo: String, stats: String, mutualFriends: String, outPutDir: String)= {
+val dateparser = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
+val from = dateparser.parse(dateFrom).getTime
+val to = dateparser.parse(dateTo).getTime
+val stats = sc.textFile(stats).map(x => (dateparser.parse(x.split(",")(2)).getTime, x))
+val sample_stats = stats.filter(x => x._1 > from && x._1 < to)
+sep.map(_._2).saveAsTextFile("sample_data")
+val sample_ids = sample_stats.map(_.split(",")(1)).map(x => (x, 1)).reduceByKey(_+_)
+val mf = sc.textFile(mutualFriends).map(_.split(",")).map(x => (x(0), x(1)))
+val temp = mf.join(sample_ids).map(x => (x._1, x._2._1))
+temp.map(x => x._1 + "," + x._2).saveAsTextFile(outPutDir)
+}
+
+//######################################################################################
 // Extract User_Median_Location_Partition for Social Network Analysis
 //######################################################################################
 def extract_UMLP(st: String, tp: String, output: String, min_count: Int) ={
