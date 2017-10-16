@@ -251,6 +251,53 @@ UTMLP.map({case(u, ((d, t, (lat, lon)), p)) => u + "," + d + "," + t + "," + lat
 }
 
 //######################################################################################
+// Social Netork only
+// extract_CDF_UMLP
+// Comulative Density of sorted error in KM
+//######################################################################################
+def extract_CDF_UMLP(in: String, res: String) = {
+val UMLP = sc.textFile(in).map(_.split(",")).map(x => (x(0), ((x(1).toDouble,x(2).toDouble), x(3))))
+val split = UMLP.map({case(u,(ml,p)) => (p,u)}).groupByKey().filter(_._2.size > 4).map({case(p,u) => (p, u.splitAt((u.size * 0.3).toInt))})
+val train = split.map({case(p,(tr,ts)) => (tr)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
+val test = split.map({case(p,(tr,ts)) => (ts)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
+val PML = UMLP.join(train).map({case(u,((ml, p),x)) => (p, ml)}).groupByKey().map({case(p, ls) => (p, geometric_median(ls.toList))})
+val U_PE = UMLP.join(test).map({case(u, ((ml,p),x)) => (p, (u, ml))}).join(PML).map({case(p, ((u, ml), pl)) => (u, geoDistance_points(ml, pl))})
+val AED = U_PE.map({case(u,e) => (1, (e, 1))}).reduceByKey((a,b) => (a._1 + b._1, a._2 + b._2)).map(x => (x._2._1 * 1.0)/x._2._2).collect
+val cnt = (U_PE.count / 2.0).toInt
+val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)
+val temp1 = U_PE.map(x => (Math.floor(x._2 * 10)/10, 1.0)).reduceByKey(_+_)
+val temp2 = sc.parallelize(Array(0.0 to 60.0 by 0.1)).flatMap(x => x).map(x => (Math.floor(x*10)/10,0.0))
+temp1.union(temp2).reduceByKey(_+_).sortBy(_._1).map(x => (x._1 + "\t" + x._2)).saveAsTextFile(res)
+}
+
+//######################################################################################
+// Social Netork + Time
+// extract_CDF_UDTMLP
+// Comulative Density of sorted error in KM
+//######################################################################################
+def extract_CDF_UDTMLP(in: String, res: String) = {
+val UDTMLP = sc.textFile(in).map(_.split(",")).map(x => (x(0), (x(1), x(2), (x(3).toDouble,x(4).toDouble), x(5))))
+val PU = UDTMLP.map({case(u,(d,t, ml,p)) => (p,u)}).map(x => (x, 1)).groupByKey().map(_._1).groupByKey()
+val split = UDTMLP.map({case(u,(d,t, ml,p)) => (p,u)}).groupByKey().map(x => (x._1, x._2.toList.distinct)).filter(_._2.size > 4).map({case(p,u) => (p, u.splitAt((u.size * 0.2).toInt))})
+val train = split.map({case(p,(tr,ts)) => (tr)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
+val test = split.map({case(p,(tr,ts)) => (ts)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
+val PDTML = UDTMLP.join(train).map({case(u,((d, t, ml, p),x)) => ((p, d, t), ml)}).groupByKey().map({case(pdt, ls) => (pdt, geometric_median(ls.toList))})
+val U_PE = UDTMLP.join(test).map({case(u, ((d, t, ml, p),x)) => ((p, d, t), (u, ml))}).join(PDTML).map({case(pdt, ((u, ml), pml)) => ((u,pdt), geoDistance_points(ml, pml))})
+val AED = U_PE.map({case(u,e) => (1, (e, 1))}).reduceByKey((a,b) => (a._1 + b._1, a._2 + b._2)).map(x => (x._2._1 * 1.0)/x._2._2).collect
+val cnt = (U_PE.count / 2.0).toInt
+val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)
+
+val temp1 = U_PE.map(x => (Math.floor(x._2 * 10)/10, 1.0)).reduceByKey(_+_)
+val temp2 = sc.parallelize(Array(0.0 to 60.0 by 0.1)).flatMap(x => x).map(x => (Math.floor(x*10)/10,0.0))
+temp1.union(temp2).reduceByKey(_+_).sortBy(_._1).map(x => (x._1 + "\t" + x._2)).saveAsTextFile(res)
+}
+
+
+
+
+
+
+//######################################################################################
 // Extract User_Topic_Median_Location_Partition for Social Network + Topic Analysis
 // Topics are extracted before using a topic modeling algorithm like LDA
 // Topics are in a file containing "Statusid	TopicID" named as sid_topic.txt
@@ -286,3 +333,6 @@ UTDTMLP.map({case(u, ((top, day, time, (lat, lon)), p)) => u + "," + top + "," +
 
 //Test Case
 //extract_UTDTMLP("tw_lo.txt", "sid_topic_150.txt", "tp", "UTDTMLP", 5)
+
+
+
