@@ -235,8 +235,8 @@ UMLP.map({case(u,((lat, lon),p)) => u + "," + lat + "," + lon + "," + p}).saveAs
 def extract_UDTMLP(st: String, tp: String, output: String, min_count: Int) ={
 val dateparser = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
 val UDL = sc.textFile(st).map(_.split(",",7)).map(x => (x(1),(dateparser.parse(x(2)), (x(4).toDouble, x(3).toDouble))))
-//val UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, if(t - 2 < 6) 0 else if (t - 7 < 12) 1 else 2, l))})
-val UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, t , l))})
+val UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, if(t - 2 < 6) 0 else if (t - 7 < 12) 1 else 2, l))})
+//val UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, t , l))})
 val valid_users = UDTL.map(x => (x._1, 1)).reduceByKey(_+_).filter(_._2 > min_count)
 val UTML = UDTL.join(valid_users).map({case(u,((d, t, l),x)) => ((u, d, t), l)}).groupByKey().map({case((u, d, t),ls) => (u,(d, t, geometric_median(ls.toList)))})
 val partitions = sc.textFile(tp).filter(x => !x.startsWith("#")).zipWithIndex().map(x => (x._2, x._1)).flatMapValues(x => x.split("\\s")).filter(x => !x._2.contains("-")).map(x => (x._2, x._1))
