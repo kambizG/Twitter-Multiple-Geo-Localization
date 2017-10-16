@@ -11,7 +11,8 @@ extract_UMLP("st_all_uniq.txt", "result/tp", "UMLP", 10)
 extract_UMLP("stats.txt", "mf_partitions/tp", "UMLP", 6)
 
 :load /home/kambiz/data/tw_data_all_clean/script/extra.scala
-val UMLP = sc.textFile("UMLP.txt").map(_.split(",")).map(x => (x(0), ((x(1).toDouble,x(2).toDouble), x(3))))
+def extract_CDF_UMLP(in: String, res: String) = {
+val UMLP = sc.textFile(in).map(_.split(",")).map(x => (x(0), ((x(1).toDouble,x(2).toDouble), x(3))))
 val split = UMLP.map({case(u,(ml,p)) => (p,u)}).groupByKey().filter(_._2.size > 4).map({case(p,u) => (p, u.splitAt((u.size * 0.3).toInt))})
 val train = split.map({case(p,(tr,ts)) => (tr)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
 val test = split.map({case(p,(tr,ts)) => (ts)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
@@ -22,7 +23,8 @@ val cnt = (U_PE.count / 2.0).toInt
 val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)
 val temp1 = U_PE.map(x => (Math.floor(x._2 * 10)/10, 1.0)).reduceByKey(_+_)
 val temp2 = sc.parallelize(Array(0.0 to 60.0 by 0.1)).flatMap(x => x).map(x => (Math.floor(x*10)/10,0.0))
-temp1.union(temp2).reduceByKey(_+_).map(x => (x._1 + "\t" + x._2)).saveAsTextFile("res_UMLP")
+temp1.union(temp2).reduceByKey(_+_).sortBy(_._1).map(x => (x._1 + "\t" + x._2)).saveAsTextFile(res)
+}
 
 //#################################################################################################
 // Social graph + Time
@@ -48,7 +50,7 @@ val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)
 
 val temp1 = U_PE.map(x => (Math.floor(x._2 * 10)/10, 1.0)).reduceByKey(_+_)
 val temp2 = sc.parallelize(Array(0.0 to 60.0 by 0.1)).flatMap(x => x).map(x => (Math.floor(x*10)/10,0.0))
-temp1.union(temp2).reduceByKey(_+_).map(x => (x._1 + "\t" + x._2)).saveAsTextFile(res)
+temp1.union(temp2).reduceByKey(_+_).sortBy(_._1).map(x => (x._1 + "\t" + x._2)).saveAsTextFile(res)
 }
 
 extract_CDF_UDTMLP("UDTMLP.txt", "res_UDTMLP")
@@ -100,7 +102,7 @@ val U_PE = UTMLP.join(test).map({case(u, ((top, ml, p),x)) => ((p, top), (u, ml)
 //val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)
 val temp1 = U_PE.map(x => (Math.floor(x._2 * 10)/10, 1.0)).reduceByKey(_+_)
 val temp2 = sc.parallelize(Array(0.0 to 60.0 by 0.1)).flatMap(x => x).map(x => (Math.floor(x*10)/10,0.0))
-temp1.union(temp2).reduceByKey(_+_).map(x => (x._1 + "\t" + x._2)).saveAsTextFile(res)
+temp1.union(temp2).reduceByKey(_+_).sortBy(_._1).map(x => (x._1 + "\t" + x._2)).saveAsTextFile(res)
 }
 
 :load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
