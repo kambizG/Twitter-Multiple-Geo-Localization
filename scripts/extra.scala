@@ -223,24 +223,30 @@ def extract_UMLP(st: String, tp: String, output: String, min_count: Int) ={
 val stats = sc.textFile(st).map(_.split(",",7)).map(x => (x(1),(x(4).toDouble, x(3).toDouble)))
 val valid_users = stats.map(x => (x._1, 1)).reduceByKey(_+_).filter(_._2 > min_count)
 val UML = stats.join(valid_users).map({case(u,(l,x)) => (u,l)}).groupByKey().map({case(u,ls) => (u, geometric_median(ls.toList))})
-val partitions = sc.textFile(tp).filter(x => !x.startsWith("#")).zipWithIndex().map(x => (x._2, x._1)).flatMapValues(x => x.split("\\s")).filter(x => !x._2.contains("-")).map(x => (x._2, x._1))
+//val partitions = sc.textFile(tp).filter(x => !x.startsWith("#")).zipWithIndex().map(x => (x._2, x._1)).flatMapValues(x => x.split("\\s")).filter(x => !x._2.contains("-")).map(x => (x._2, x._1))
+val partitions = sc.textFile(tp).map(_.split(",")).map(x => (x(0),x(1)))
 val UMLP = UML.join(partitions)
 UMLP.map({case(u,((lat, lon),p)) => u + "," + lat + "," + lon + "," + p}).saveAsTextFile(output)  
 }
 
 //######################################################################################
 // Extract User_Median_Location_Partition for Social Network + Time Analysis
-// Day 0, 1, 2 = (0-7, 8-18, 19-23)
+// Day => {WE, WD} = {0, 1}
+// Hour => {0-7, 8-18, 19-23} = {0, 1, 2}
+// Hour_3H => H/3 = {0, 1, 2, 3, 4, 5, 6, 7, 8}
+// Hour_1H => H = {0, ..., 23}
 //######################################################################################
-def extract_UDTMLP(st: String, tp: String, output: String, min_count: Int) ={
+def extract_UDTMLP(stats: String, partitions: String, output: String, min_count: Int) ={
 val dateparser = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
-val UDL = sc.textFile(st).map(_.split(",",7)).map(x => (x(1),(dateparser.parse(x(2)), (x(4).toDouble, x(3).toDouble))))
+val UDL = sc.textFile(stats).map(_.split(",",7)).map(x => (x(1),(dateparser.parse(x(2)), (x(4).toDouble, x(3).toDouble))))
 val UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, if(t - 2 < 6) 0 else if (t - 7 < 12) 1 else 2, l))})
+//val UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, t/3 , l))})
 //val UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, t , l))})
 val valid_users = UDTL.map(x => (x._1, 1)).reduceByKey(_+_).filter(_._2 > min_count)
 val UTML = UDTL.join(valid_users).map({case(u,((d, t, l),x)) => ((u, d, t), l)}).groupByKey().map({case((u, d, t),ls) => (u,(d, t, geometric_median(ls.toList)))})
-val partitions = sc.textFile(tp).filter(x => !x.startsWith("#")).zipWithIndex().map(x => (x._2, x._1)).flatMapValues(x => x.split("\\s")).filter(x => !x._2.contains("-")).map(x => (x._2, x._1))
-val UTMLP = UTML.join(partitions)
+val UP = sc.textFile(partitions).map(_.split(",")).map(x => (x(0),x(1)))
+//val partitions = sc.textFile(tp).filter(x => !x.startsWith("#")).zipWithIndex().map(x => (x._2, x._1)).flatMapValues(x => x.split("\\s")).filter(x => !x._2.contains("-")).map(x => (x._2, x._1))
+val UTMLP = UTML.join(UP)
 UTMLP.map({case(u, ((d, t, (lat, lon)), p)) => u + "," + d + "," + t + "," + lat + "," + lon + "," + p}).saveAsTextFile(output)
 }
 
