@@ -254,15 +254,13 @@ UMLP.map({case(u,((lat, lon),p)) => u + "," + lat + "," + lon + "," + p}).saveAs
 // Hour_1H => H = {0, ..., 23}
 // timeSpan = {"N","3H","1H"}
 //######################################################################################
-def extract_UDTMLP(stats: String, partitions: String, output: String, min_count: Int, timeSpan: String) ={
+def extract_UDTMLP(stats: String, partitions: String, output: String, min_count: Int, timeSpan: String) = {
 val dateparser = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
 val UDL = sc.textFile(stats).map(_.split(",",7)).map(x => (x(1),(dateparser.parse(x(2)), (x(4).toDouble, x(3).toDouble))))
-val UDTL
-if(timeSpan == "N"){
-UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, if(t - 2 < 6) 0 else if (t - 7 < 12) 1 else 2, l))})
-else if(timeSpan == "3H"){
+var UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, if(t - 2 < 6) 0 else if (t - 7 < 12) 1 else 2, l))})
+if(timeSpan == "3H"){
 UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, t/3 , l))})
-else{
+}else if(timeSpan == "1H"){
 UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, t , l))})
 }
 val valid_users = UDTL.map(x => (x._1, 1)).reduceByKey(_+_).filter(_._2 > min_count)
