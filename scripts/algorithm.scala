@@ -1,4 +1,4 @@
-:load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
+:load /home/kambiz/data/tw_data_all_clean/tw_loi/scripts/extra.scala
 // SN
 extract_UMLP("stats.txt", "tp", "UMLP", 0)
 extract_CDF_UMLP("UTMLP.txt", "CDF_UMLP")
@@ -18,7 +18,7 @@ extract_CDF_UDTMLP("UDTMLP_3H.txt", "CDF_UDTMLP_3H")
 
 //read stats, clean, remove stopwords, write for topic extraction
 //##################
-:load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
+:load /home/kambiz/data/tw_data_all_clean/tw_loi/scripts/extra.scala
 val sw = sc.textFile("../longstoplist.txt").collect
 val stats = sc.textFile("tw_lo.txt").map(_.split(",",7)).map(x => (x(0), x(6)))
 val cleanStats = stats.map(x => (x._1, cleanRemoveStopWords(x._2, sw, 2, 15)))
@@ -42,7 +42,7 @@ cat stats_clean.txt | cut -d',' -f1 >> sids.txt
 paste sids.txt topcis.txt >> sid_topic.txt
 */
 //##################
-:load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
+:load /home/kambiz/data/tw_data_all_clean/tw_loi/scripts/extra.scala
 extract_UDTMLP("tw_lo.txt", "sid_topic.txt", "tp", "UTMLP", 5)
 
 def extract_CDF_UTMLP(in: String, res: String) = {
@@ -60,6 +60,6 @@ val temp2 = sc.parallelize(Array(0.0 to 60.0 by 0.1)).flatMap(x => x).map(x => (
 temp1.union(temp2).reduceByKey(_+_).sortBy(_._1).map(x => (x._1 + "\t" + x._2)).saveAsTextFile(res)
 }
 
-:load /home/kambiz/data/tw_data_all_clean/tw_location_identification/scripts/extra.scala
+:load /home/kambiz/data/tw_data_all_clean/tw_loi/scripts/extra.scala
 extract_CDF_UTMLP("UTMLP_150.txt","res_UTMLP_150")
 
