@@ -1,7 +1,7 @@
 :load /home/kambiz/data/tw_data_all_clean/tw_loi/scripts/extra.scala
 // SN
 extract_UMLP("stats.txt", "partitions_100.txt", "UMLP", 0)
-extract_CDF_UMLP("UTMLP.txt", "CDF_UMLP")
+extract_CDF_UMLP("UMLP.txt", "CDF_UMLP")
 // SN + Time
 extract_UDTMLP("stats.txt", "partitions_100.txt", "UDTMLP", 0)
 extract_CDF_UDTMLP("UDTMLP.txt", "CDF_UDTMLP")
