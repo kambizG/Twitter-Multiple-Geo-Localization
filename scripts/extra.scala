@@ -234,17 +234,16 @@ temp.map(x => x._1 + "," + x._2).saveAsTextFile(outPutDir)
 }
 
 //######################################################################################
-// Extract User_Median_Location_Partition for Social Network Analysis
+// Extract User_Median_Location_Partition_Degree_MessageCount for Social Network Analysis
 //######################################################################################
-def extract_UMLPD(stats: String, partitions: String, mutual_friends: String, output: String, min_count: Int) ={
+def extract_UMLPDC(stats: String, partitions: String, mutual_friends: String, output: String, min_count: Int) ={
 val UL = sc.textFile(stats).map(_.split(",",7)).map(x => (x(1),(x(4).toDouble, x(3).toDouble)))
-val valid_users = UL.map(x => (x._1, 1)).reduceByKey(_+_).filter(_._2 > min_count)
-val UML = UL.join(valid_users).map({case(u,(l,x)) => (u,l)}).groupByKey().map({case(u,ls) => (u, geometric_median(ls.toList))})
-//val partitions = sc.textFile(tp).filter(x => !x.startsWith("#")).zipWithIndex().map(x => (x._2, x._1)).flatMapValues(x => x.split("\\s")).filter(x => !x._2.contains("-")).map(x => (x._2, x._1))
+val UML = UL.groupByKey().map({case(u,ls) => (u, geometric_median(ls.toList))})
 val UP = sc.textFile(partitions).map(_.split(",")).map(x => (x(0),x(1)))
-val UDeg = sc.textFile(mutual_friends).map(x => (x.split(",")(0), 1)).reduceByKey(_+_)
-val UMLP = UML.join(UP).join(UDeg)
-UMLP.map({case(u, (((lat, lon), p), deg)) => u + "," + lat + "," + lon + "," + p + "," + deg}).saveAsTextFile(output)  
+val UD = sc.textFile(mutual_friends).map(x => (x.split(",")(0), 1)).reduceByKey(_+_)
+val UMC = UL.map(x => (x._1, 1)).reduceByKey(_+_)
+val UMLPDC = UML.join(UP).join(UD).join(UMC)
+UMLPDC.map({case(u, ((((lat, lon), p), deg), mc)) => u + "," + lat + "," + lon + "," + p + "," + deg + "," + mc}).saveAsTextFile(output)  
 }
 
 //######################################################################################
@@ -255,7 +254,7 @@ UMLP.map({case(u, (((lat, lon), p), deg)) => u + "," + lat + "," + lon + "," + p
 // Hour_1H => H = {0, ..., 23}
 // timeSpan = {"N","3H","1H"}
 //######################################################################################
-def extract_UDTMLPD(stats: String, partitions: String, mutual_friends: String, output: String, min_count: Int, timeSpan: String) = {
+def extract_UDTMLPDC(stats: String, partitions: String, mutual_friends: String, output: String, min_count: Int, timeSpan: String) = {
 val dateparser = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
 val UDL = sc.textFile(stats).map(_.split(",",7)).map(x => (x(1),(dateparser.parse(x(2)), (x(4).toDouble, x(3).toDouble))))
 var UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, if(t - 2 < 6) 0 else if (t - 7 < 12) 1 else 2, l))})
@@ -265,12 +264,12 @@ UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d
 UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, t , l))})
 }
 val valid_users = UDTL.map(x => (x._1, 1)).reduceByKey(_+_).filter(_._2 > min_count)
-val UTML = UDTL.join(valid_users).map({case(u,((d, t, l),x)) => ((u, d, t), l)}).groupByKey().map({case((u, d, t),ls) => (u,(d, t, geometric_median(ls.toList)))})
+val UDTML = UDTL.map({case(u,(d, t, l)) => ((u, d, t), l)}).groupByKey().map({case((u, d, t),ls) => (u,(d, t, geometric_median(ls.toList)))})
 val UP = sc.textFile(partitions).map(_.split(",")).map(x => (x(0),x(1)))
-//val partitions = sc.textFile(tp).filter(x => !x.startsWith("#")).zipWithIndex().map(x => (x._2, x._1)).flatMapValues(x => x.split("\\s")).filter(x => !x._2.contains("-")).map(x => (x._2, x._1))
-val UDeg = sc.textFile(mutual_friends).map(x => (x.split(",")(0), 1)).reduceByKey(_+_)
-val UTMLP = UTML.join(UP).join(UDeg)
-UTMLP.map({case(u, (((d, t, (lat, lon)), p), deg)) => u + "," + d + "," + t + "," + lat + "," + lon + "," + p + "," + deg}).saveAsTextFile(output)
+val UD = sc.textFile(mutual_friends).map(x => (x.split(",")(0), 1)).reduceByKey(_+_)
+val UMC = UDL.map(x => (x._1, 1)).reduceByKey(_+_)
+val UDTMLPDC = UDTML.join(UP).join(UD).join(UMC)
+UDTMLPDC.map({case(u, ((((d, t, (lat, lon)), p), deg),mc)) => u + "," + d + "," + t + "," + lat + "," + lon + "," + p + "," + deg + "," +mc}).saveAsTextFile(output)
 }
 
 //######################################################################################
