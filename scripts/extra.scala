@@ -236,7 +236,7 @@ temp.map(x => x._1 + "," + x._2).saveAsTextFile(outPutDir)
 //######################################################################################
 // Extract User_Median_Location_Partition for Social Network Analysis
 //######################################################################################
-def extract_UMLP(stats: String, partitions: String, mutual_friends: String, output: String, min_count: Int) ={
+def extract_UMLPD(stats: String, partitions: String, mutual_friends: String, output: String, min_count: Int) ={
 val UL = sc.textFile(stats).map(_.split(",",7)).map(x => (x(1),(x(4).toDouble, x(3).toDouble)))
 val valid_users = UL.map(x => (x._1, 1)).reduceByKey(_+_).filter(_._2 > min_count)
 val UML = UL.join(valid_users).map({case(u,(l,x)) => (u,l)}).groupByKey().map({case(u,ls) => (u, geometric_median(ls.toList))})
