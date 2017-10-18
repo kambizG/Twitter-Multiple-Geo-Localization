@@ -292,8 +292,8 @@ UDTMLPDC.map({case(u, ((((d, t, (lat, lon)), p), deg),mc)) => u + "," + d + "," 
 // extract_CDF_UMLP
 // Comulative Density of sorted error in KM
 //######################################################################################
-def extract_CDF_UMLPDC(in: String, res: String, maxDegree: Integer, minMsgCnt: Integer) = {
-val UMLP = sc.textFile(in).map(_.split(",")).filter(x => x(4).toInt < maxDegree && x(5).toInt > minMsgCnt).map(x => (x(0), ((x(1).toDouble,x(2).toDouble), x(3))))
+def extract_CDF_UMLPDC(in: String, res: String, maxDegree: Integer, maxMsgCnt: Integer) = {
+val UMLP = sc.textFile(in).map(_.split(",")).filter(x => x(4).toInt < maxDegree && x(5).toInt < maxMsgCnt).map(x => (x(0), ((x(1).toDouble,x(2).toDouble), x(3))))
 val split = UMLP.map({case(u,(ml,p)) => (p,u)}).groupByKey().filter(_._2.size > 4).map({case(p,u) => (p, u.splitAt((u.size * 0.3).toInt))})
 val train = split.map({case(p,(tr,ts)) => (tr)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
 val test = split.map({case(p,(tr,ts)) => (ts)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
@@ -313,8 +313,8 @@ temp3.map(x => (0, x)).groupByKey().map(x => CDF(x._2.toList)).flatMap(x => x).m
 // extract_CDF_UDTMLP
 // Comulative Density of sorted error in KM
 //######################################################################################
-def extract_CDF_UDTMLPDC(in: String, res: String, maxDegree: Integer, minMsgCnt: Integer) = {
-val UDTMLP = sc.textFile(in).map(_.split(",")).filter(x => x(6).toInt < maxDegree && x(7).toInt > minMsgCnt).map(x => (x(0), (x(1), x(2), (x(3).toDouble,x(4).toDouble), x(5))))
+def extract_CDF_UDTMLPDC(in: String, res: String, maxDegree: Integer, maxMsgCnt: Integer) = {
+val UDTMLP = sc.textFile(in).map(_.split(",")).filter(x => x(6).toInt < maxDegree && x(7).toInt < maxMsgCnt).map(x => (x(0), (x(1), x(2), (x(3).toDouble,x(4).toDouble), x(5))))
 val PU = UDTMLP.map({case(u,(d,t, ml,p)) => (p,u)}).map(x => (x, 1)).groupByKey().map(_._1).groupByKey()
 val split = UDTMLP.map({case(u,(d,t, ml,p)) => (p,u)}).groupByKey().map(x => (x._1, x._2.toList.distinct)).filter(_._2.size > 4).map({case(p,u) => (p, u.splitAt((u.size * 0.2).toInt))})
 val train = split.map({case(p,(tr,ts)) => (tr)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
