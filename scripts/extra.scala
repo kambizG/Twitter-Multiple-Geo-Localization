@@ -297,7 +297,7 @@ temp1.union(temp2).reduceByKey(_+_).sortBy(_._1).map(x => (x._1 + "\t" + x._2)).
 // Comulative Density of sorted error in KM
 //######################################################################################
 def extract_CDF_UDTMLPDC(in: String, res: String, maxDegree: Integer, minMsgCnt: Integer) = {
-val UDTMLP = sc.textFile(in).map(_.split(",")).filter(x => x(6).toInt < maxDegree && x(7).toInt < minMsgCnt).map(x => (x(0), (x(1), x(2), (x(3).toDouble,x(4).toDouble), x(5))))
+val UDTMLP = sc.textFile(in).map(_.split(",")).filter(x => x(6).toInt < maxDegree && x(7).toInt > minMsgCnt).map(x => (x(0), (x(1), x(2), (x(3).toDouble,x(4).toDouble), x(5))))
 val PU = UDTMLP.map({case(u,(d,t, ml,p)) => (p,u)}).map(x => (x, 1)).groupByKey().map(_._1).groupByKey()
 val split = UDTMLP.map({case(u,(d,t, ml,p)) => (p,u)}).groupByKey().map(x => (x._1, x._2.toList.distinct)).filter(_._2.size > 4).map({case(p,u) => (p, u.splitAt((u.size * 0.2).toInt))})
 val train = split.map({case(p,(tr,ts)) => (tr)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
