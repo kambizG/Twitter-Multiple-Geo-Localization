@@ -270,7 +270,7 @@ val UP = sc.textFile(partitions).map(_.split(",")).map(x => (x(0),x(1)))
 //val partitions = sc.textFile(tp).filter(x => !x.startsWith("#")).zipWithIndex().map(x => (x._2, x._1)).flatMapValues(x => x.split("\\s")).filter(x => !x._2.contains("-")).map(x => (x._2, x._1))
 val UDeg = sc.textFile(mutual_friends).map(x => (x.split(",")(0), 1)).reduceByKey(_+_)
 val UTMLP = UTML.join(UP).join(UDeg)
-UTMLP.map({case(u, (((d, t, (lat, lon)), p), deg)) => u + "," + d + "," + t + "," + lat + "," + lon + "," + p}).saveAsTextFile(output)
+UTMLP.map({case(u, (((d, t, (lat, lon)), p), deg)) => u + "," + d + "," + t + "," + lat + "," + lon + "," + p + "," + deg}).saveAsTextFile(output)
 }
 
 //######################################################################################
