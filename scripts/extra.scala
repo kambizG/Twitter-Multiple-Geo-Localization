@@ -234,6 +234,22 @@ temp.map(x => x._1 + "," + x._2).saveAsTextFile(outPutDir)
 }
 
 //######################################################################################
+// Extract CDF of a count array 
+//######################################################################################
+def CDF(arr: List[(Double, Double)]): Array[(Double, Double)] ={
+var res = Array.fill[(Double, Double)](arr.size)(-1.0, -1.0)
+res(0) = arr(0)
+var sum = arr(0)._2
+for(i <- 1 to arr.size - 1){
+sum += arr(i)._2
+res(i) = (arr(i)._1, res(i-1)._2 + arr(i)._2)
+}
+for(i <- 0 to arr.size - 1)
+res(i) = (res(i)._1, res(i)._2/sum)
+return res
+}
+
+//######################################################################################
 // Extract User_Median_Location_Partition_Degree_MessageCount for Social Network Analysis
 //######################################################################################
 def extract_UMLPDC(stats: String, partitions: String, mutual_friends: String, output: String) ={
@@ -288,7 +304,8 @@ val cnt = (U_PE.count / 2.0).toInt
 val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)
 val temp1 = U_PE.map(x => (Math.floor(x._2 * 10)/10, 1.0)).reduceByKey(_+_)
 val temp2 = sc.parallelize(Array(0.0 to 60.0 by 0.1)).flatMap(x => x).map(x => (Math.floor(x*10)/10,0.0))
-temp1.union(temp2).reduceByKey(_+_).sortBy(_._1).map(x => (x._1 + "\t" + x._2)).saveAsTextFile(res)
+val temp3 = temp1.union(temp2).reduceByKey(_+_).sortBy(_._1).map(x => (x._1 + "\t" + x._2))
+temp3.map(x => (0, x)).groupByKey().map(x => CDF(x._2.toList)).flatMap(x => x).map(x => x._1 + "\t" + x._2).saveAsTextFile(res)
 }
 
 //######################################################################################
@@ -310,7 +327,8 @@ val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)
 
 val temp1 = U_PE.map(x => (Math.floor(x._2 * 10)/10, 1.0)).reduceByKey(_+_)
 val temp2 = sc.parallelize(Array(0.0 to 60.0 by 0.1)).flatMap(x => x).map(x => (Math.floor(x*10)/10,0.0))
-temp1.union(temp2).reduceByKey(_+_).sortBy(_._1).map(x => (x._1 + "\t" + x._2)).saveAsTextFile(res)
+val temp3 = temp1.union(temp2).reduceByKey(_+_).sortBy(_._1).map(x => (x._1 + "\t" + x._2))
+temp3.map(x => (0, x)).groupByKey().map(x => CDF(x._2.toList)).flatMap(x => x).map(x => x._1 + "\t" + x._2).saveAsTextFile(res)
 }
 
 
