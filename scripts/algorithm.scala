@@ -1,6 +1,5 @@
 :load /home/kambiz/data/tw_data_all_clean/tw_loi/scripts/extra.scala
 // SN
-UMLPDC
 extract_UMLPDC("stats.txt", "partitions.txt", "mf.txt", "UMLPDC")
 extract_CDF_UMLPDC("UMLPDC.txt", "CDF_UMLPDC", 100, 5)
 // SN + Time
