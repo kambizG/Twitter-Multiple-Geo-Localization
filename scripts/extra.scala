@@ -236,14 +236,15 @@ temp.map(x => x._1 + "," + x._2).saveAsTextFile(outPutDir)
 //######################################################################################
 // Extract User_Median_Location_Partition for Social Network Analysis
 //######################################################################################
-def extract_UMLP(st: String, tp: String, output: String, min_count: Int) ={
-val stats = sc.textFile(st).map(_.split(",",7)).map(x => (x(1),(x(4).toDouble, x(3).toDouble)))
+def extract_UMLP(stats: String, partitions: String, mutual_friends: String output: String, min_count: Int) ={
+val stats = sc.textFile(stats).map(_.split(",",7)).map(x => (x(1),(x(4).toDouble, x(3).toDouble)))
 val valid_users = stats.map(x => (x._1, 1)).reduceByKey(_+_).filter(_._2 > min_count)
 val UML = stats.join(valid_users).map({case(u,(l,x)) => (u,l)}).groupByKey().map({case(u,ls) => (u, geometric_median(ls.toList))})
 //val partitions = sc.textFile(tp).filter(x => !x.startsWith("#")).zipWithIndex().map(x => (x._2, x._1)).flatMapValues(x => x.split("\\s")).filter(x => !x._2.contains("-")).map(x => (x._2, x._1))
-val partitions = sc.textFile(tp).map(_.split(",")).map(x => (x(0),x(1)))
-val UMLP = UML.join(partitions)
-UMLP.map({case(u,((lat, lon),p)) => u + "," + lat + "," + lon + "," + p}).saveAsTextFile(output)  
+val UP = sc.textFile(partitions).map(_.split(",")).map(x => (x(0),x(1)))
+val UDeg = sc.textFile(mutual_friends).map(x => (x.split(",")(0), 1)).reduceByKey(_+_)
+val UMLP = UML.join(UP).join(UDeg)
+UMLP.map({case(u,(((lat, lon),p)),deg) => u + "," + lat + "," + lon + "," + p + "," + deg}).saveAsTextFile(output)  
 }
 
 //######################################################################################
