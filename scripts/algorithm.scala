@@ -3,10 +3,10 @@
 extract_UMLPD("stats.txt", "partitions.txt", "mf.txt", "UMLPD", 0)
 extract_CDF_UMLPD("UMLPD.txt", "CDF_UMLPD", 100)
 // SN + Time
-extract_UDTMLP("stats.txt", "partitions.txt", "mf.txt", "UDTMLP", 0, "N")
-extract_UDTMLP("stats.txt", "partitions.txt", "mf.txt", "UDTMLP", 0, "3H")
-extract_UDTMLP("stats.txt", "partitions.txt", "mf.txt", "UDTMLP", 0, "1H")
-extract_CDF_UDTMLP("UDTMLP.txt", "CDF_UDTMLP")
+extract_UDTMLPD("stats.txt", "partitions.txt", "mf.txt", "UDTMLP", 0, "N")
+extract_UDTMLPD("stats.txt", "partitions.txt", "mf.txt", "UDTMLP", 0, "3H")
+extract_UDTMLPD("stats.txt", "partitions.txt", "mf.txt", "UDTMLP", 0, "1H")
+extract_CDF_UDTMLPD("UDTMLP.txt", "CDF_UDTMLP", 100)
 
 //#################################################################################################
 // Social graph + Text
