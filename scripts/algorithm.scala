@@ -1,12 +1,12 @@
 :load /home/kambiz/data/tw_data_all_clean/tw_loi/scripts/extra.scala
 // SN
-extract_UMLPD("stats.txt", "partitions.txt", "mf.txt", "UMLPD", 0)
-extract_CDF_UMLPD("UMLPD.txt", "CDF_UMLPD", 100)
+extract_UMLPD("stats.txt", "partitions.txt", "mf.txt", "UMLPD")
+extract_CDF_UMLPD("UMLPD.txt", "CDF_UMLPD", 100, 5)
 // SN + Time
-extract_UDTMLPD("stats.txt", "partitions.txt", "mf.txt", "UDTMLPD", 0, "N")
-extract_UDTMLPD("stats.txt", "partitions.txt", "mf.txt", "UDTMLPD", 0, "3H")
-extract_UDTMLPD("stats.txt", "partitions.txt", "mf.txt", "UDTMLPD", 0, "1H")
-extract_CDF_UDTMLPD("UDTMLPD.txt", "CDF_UDTMLPD", 100)
+extract_UDTMLPD("stats.txt", "partitions.txt", "mf.txt", "UDTMLPD", "N")
+extract_UDTMLPD("stats.txt", "partitions.txt", "mf.txt", "UDTMLPD", "3H")
+extract_UDTMLPD("stats.txt", "partitions.txt", "mf.txt", "UDTMLPD", "1H")
+extract_CDF_UDTMLPD("UDTMLPD.txt", "CDF_UDTMLPD", 100, 5)
 
 //#################################################################################################
 // Social graph + Text
