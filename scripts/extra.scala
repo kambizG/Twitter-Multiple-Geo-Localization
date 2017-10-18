@@ -277,8 +277,8 @@ UTMLP.map({case(u, ((d, t, (lat, lon)), p)) => u + "," + d + "," + t + "," + lat
 // extract_CDF_UMLP
 // Comulative Density of sorted error in KM
 //######################################################################################
-def extract_CDF_UMLP(in: String, res: String) = {
-val UMLP = sc.textFile(in).map(_.split(",")).map(x => (x(0), ((x(1).toDouble,x(2).toDouble), x(3))))
+def extract_CDF_UMLPD(in: String, res: String, maxDegree: Integer) = {
+val UMLP = sc.textFile(in).map(_.split(",")).filter(x => x(4).toInt < maxDegree).map(x => (x(0), ((x(1).toDouble,x(2).toDouble), x(3))))
 val split = UMLP.map({case(u,(ml,p)) => (p,u)}).groupByKey().filter(_._2.size > 4).map({case(p,u) => (p, u.splitAt((u.size * 0.3).toInt))})
 val train = split.map({case(p,(tr,ts)) => (tr)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
 val test = split.map({case(p,(tr,ts)) => (ts)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
