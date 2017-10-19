@@ -292,7 +292,9 @@ UDTMLPDC.map({case(u, ((((d, t, (lat, lon)), p), deg),mc)) => u + "," + d + "," 
 // extract_CDF_UMLP
 // Comulative Density of sorted error in KM
 //######################################################################################
-def extract_CDF_UMLPDC(in: String, res: String, minDeg:Int, maxDeg: Int, minMsgCnt: Int, maxMsgCnt: Int) = {
+def extract_CDF_UMLPDC(in: String, res: String, minDeg: Int = 0, maxDeg: Int = Int.MaxValue, minMsgCnt: Int = 0, maxMsgCnt: Int = Int.MaxValue) = {
+val ML = sc.textFile(in).map(_.split(",")).map(x => (x(0), ((x(1).toDouble,x(2).toDouble), x(3), x(4).toInt, x(5).toInt))).filter({case(u, (ml, p, deg, cnt)) => deg > minDeg && deg < maxDeg && cnt > minMsgCnt && cnt < maxMsgCnt})
+val UDTMLP = ML.map({case(u, (ml, p, deg, cnt)) => (u, (ml, p))})
 val UMLP = sc.textFile(in).map(_.split(",")).filter(x => x(4).toInt > minDeg && x(4).toInt < maxDeg && x(5).toInt > minMsgCnt && x(5).toInt < maxMsgCnt).map(x => (x(0), ((x(1).toDouble,x(2).toDouble), x(3))))
 val split = UMLP.map({case(u,(ml,p)) => (p,u)}).groupByKey().filter(_._2.size > 4).map({case(p,u) => (p, u.splitAt((u.size * 0.8).toInt))})
 val train = split.map({case(p,(tr,ts)) => (tr)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
