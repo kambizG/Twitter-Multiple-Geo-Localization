@@ -226,12 +226,16 @@ val from = dateparser.parse(dateFrom).getTime
 val to = dateparser.parse(dateTo).getTime
 val st = sc.textFile(stats).map(x => (dateparser.parse(x.split(",")(2)).getTime, x))
 val sample_stats = st.filter(x => x._1 > from && x._1 < to)
-sample_stats.map(_._2).saveAsTextFile("sample_data")
+sample_stats.map(_._2).saveAsTextFile(outPutDir + "sample_data")
 val sample_ids = sample_stats.map(x => (x._2.split(",")(1), 1)).reduceByKey(_+_)
 val mf = sc.textFile(mutualFriends).map(_.split(",")).map(x => (x(0), x(1)))
 val temp = mf.join(sample_ids).map(x => (x._1, x._2._1))
-temp.map(x => x._1 + "," + x._2).saveAsTextFile(outPutDir)
+temp.map(x => x._1 + "," + x._2).saveAsTextFile(outPutDir + "mf")
 }
+
+//Test Case - Autumn 2014
+//:load /home/kambiz/data/tw_data_all_clean/tw_loi/scripts/extra.scala
+//createSample("Sun Aug 31 00:00:00 CEST 2014","Mon Dec 01 00:00:00 CEST 2014","tw_lo.txt","mf_lo.txt","sample_data/")
 
 //######################################################################################
 // Extract CDF of a count array 
