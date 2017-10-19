@@ -307,7 +307,8 @@ val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)
 val temp1 = U_PE.map(x => (Math.floor(x._2 * 10)/10, 1.0)).reduceByKey(_+_)
 val temp2 = sc.parallelize(Array(0.0 to 60.0 by 0.1)).flatMap(x => x).map(x => (Math.floor(x*10)/10,0.0))
 val temp3 = temp1.union(temp2).reduceByKey(_+_).sortBy(_._1)
-temp3.map(x => (0, x)).groupByKey().map(x => CDF(x._2.toList)).flatMap(x => x).map(x => x._1 + "\t" + x._2).saveAsTextFile(res)
+//temp3.map(x => (0, x)).groupByKey().map(x => CDF(x._2.toList)).flatMap(x => x).map(x => x._1 + "\t" + x._2).saveAsTextFile(res)
+temp3.map(x => (0, x)).groupByKey().map(x => CDF(x._2.toList)).flatMap(x => x).map(x => x._2).saveAsTextFile(res)
 }
 
 //######################################################################################
@@ -342,7 +343,8 @@ val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)
 val temp1 = U_PE.map(x => (Math.floor(x._2 * 10)/10, 1.0)).reduceByKey(_+_)
 val temp2 = sc.parallelize(Array(0.0 to 60.0 by 0.1)).flatMap(x => x).map(x => (Math.floor(x*10)/10,0.0))
 val temp3 = temp1.union(temp2).reduceByKey(_+_).sortBy(_._1)
-temp3.map(x => (0, x)).groupByKey().map(x => CDF(x._2.toList)).flatMap(x => x).map(x => x._1 + "\t" + x._2).saveAsTextFile(res)
+//temp3.map(x => (0, x)).groupByKey().map(x => CDF(x._2.toList)).flatMap(x => x).map(x => x._1 + "\t" + x._2).saveAsTextFile(res)
+temp3.map(x => (0, x)).groupByKey().map(x => CDF(x._2.toList)).flatMap(x => x).map(x => x._2).saveAsTextFile(res)
 }
 
 
