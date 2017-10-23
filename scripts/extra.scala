@@ -273,23 +273,25 @@ UMLPDC.map({case(u, ((((lat, lon), p), deg), mc)) => u + "," + lat + "," + lon +
 // Hour_3H => H/3 = {0, 1, 2, 3, 4, 5, 6, 7, 8}
 // Hour_1H => H = {0, ..., 23}
 // timeSpan = {"N","3H","1H"}
+// daySpan = {"DAILY", Default = "WE/WD"}
 //######################################################################################
-def extract_UDTMLPDC(stats: String, partitions: String, mutual_friends: String, output: String, timeSpan: String) = {
+def extract_UDTMLPDC(stats: String, partitions: String, mutual_friends: String, output: String, daySpan: String = "WE/WD", timeSpan: String = "N") = {
 val dateparser = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
 val UDL = sc.textFile(stats).map(_.split(",",7)).map(x => (x(1),(dateparser.parse(x(2)), (x(4).toDouble, x(3).toDouble))))
-var UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, if(t - 2 < 6) 0 else if (t - 7 < 12) 1 else 2, l))})
+var UDTL = UDL.map({case(u, (d, l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(daySpan == "DAILY") d else if(d % 6 > 0) 1 else 0, if(t - 2 < 6) 0 else if (t - 7 < 12) 1 else 2, l))})
 if(timeSpan == "3H"){
-UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, t/3 , l))})
+UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(daySpan == "DAILY") d else if(d % 6 > 0) 1 else 0, t/3 , l))})
 }else if(timeSpan == "1H"){
-UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(d % 6 > 0) 1 else 0, t , l))})
+UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(daySpan == "DAILY") d else if(d % 6 > 0) 1 else 0, t , l))})
 }
 val UDTML = UDTL.map({case(u,(d, t, l)) => ((u, d, t), l)}).groupByKey().map({case((u, d, t),ls) => (u,(d, t, geometric_median(ls.toList)))})
 val UP = sc.textFile(partitions).map(_.split(",")).map(x => (x(0),x(1)))
 val UD = sc.textFile(mutual_friends).map(x => (x.split(",")(0), 1)).reduceByKey(_+_)
 val UMC = UDL.map(x => (x._1, 1)).reduceByKey(_+_)
 val UDTMLPDC = UDTML.join(UP).join(UD).join(UMC)
-UDTMLPDC.map({case(u, ((((d, t, (lat, lon)), p), deg),mc)) => u + "," + d + "," + t + "," + lat + "," + lon + "," + p + "," + deg + "," +mc}).saveAsTextFile(output)
+UDTMLPDC.map({case(u, ((((d, t, (lat, lon)), p), deg),mc)) => u + "," + d + "," + t + "," + lat + "," + lon + "," + p + "," + deg + "," +mc}).saveAsTextFile(output + "_" + daySpan + "_" + timeSpan)
 }
+
 
 //######################################################################################
 // Social Netork only
