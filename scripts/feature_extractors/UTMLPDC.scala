@@ -20,7 +20,7 @@ UTMLPDC.map({case(u, ((((top, (lat, lon)), p), deg), mc)) => u + "," + top + ","
 def extract_CDF_UTMLPDC(in: String, res: String, minDeg: Int = 0, maxDeg: Int = Int.MaxValue, minMsgCnt: Int = 0, maxMsgCnt: Int = Int.MaxValue) = {
 val UTMLPDC = sc.textFile(in).map(_.split(",")).map(x => (x(0), (x(1), (x(2).toDouble, x(3).toDouble), x(4), x(5).toInt, x(6).toInt)))
 var ML_filt_deg_cnt = UTMLPDC.filter({case(u, (t, ml, p, deg, cnt)) => deg > minDeg && deg < maxDeg && cnt > minMsgCnt && cnt < maxMsgCnt})
-val split = ML_filt_deg_cnt.map({case(u,(top, ml, p, deg, cnt)) => (p,u)}).groupByKey().map(x => (x._1, x._2.distinct)).filter(_._2.size > 4).map({case(p,u) => (p, u.splitAt((u.size * 0.2).toInt))})
+val split = ML_filt_deg_cnt.map({case(u,(top, ml, p, deg, cnt)) => (p,u)}).groupByKey().map(x => (x._1, x._2.distinct)).filter(_._2.size > 4).map({case(p,u) => (p, u.splitAt((u.size * 0.7).toInt))})
 val train = split.map({case(p,(tr,ts)) => (tr)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
 val test = split.map({case(p,(tr,ts)) => (ts)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
 val PTML = ML_filt_deg_cnt.join(train).map({case(u,((top, ml, p, deg, cnt),x)) => ((p, top), ml)}).groupByKey().map({case(ptop, mlList) => (ptop, geometric_median(mlList.toList))})
