@@ -20,7 +20,7 @@ else
 	cd $DIR
 	spark-shell --driver-memory 20g -i /home/kambiz/data/tw_data_all_clean/tw_loi/scripts/topic_model/convert_topics.scala
 	cat topics/part-0* >> topics.txt
-	paste sids.txt topics.txt >> sid_topic.txt
+	paste sids.txt topics.txt >> sid_topic_$1.txt
 	rm -r LDA/
 	rm -r topics/
 	rm -r sids.txt
