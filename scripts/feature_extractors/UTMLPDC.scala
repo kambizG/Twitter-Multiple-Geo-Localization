@@ -12,7 +12,7 @@ val UP = sc.textFile(partitions).map(_.split(",")).map(x => (x(0),x(1)))
 val UD = sc.textFile(mutual_friends).map(x => (x.split(",")(0), 1)).reduceByKey(_+_)
 val UMC = UTL.map(x => (x._1._1, 1)).reduceByKey(_+_)
 val UTMLPDC = UTML.join(UP).join(UD).join(UMC)
-UTMLPDC.map({case(u, ((((top, (lat, lon)), p), deg), mc)) => u + "," + top + "," + lat + "," + lon + "," + p + "," + deg + "," + mc}).saveAsTextFile("output")
+UTMLPDC.map({case(u, ((((top, (lat, lon)), p), deg), mc)) => u + "," + top + "," + lat + "," + lon + "," + p + "," + deg + "," + mc}).saveAsTextFile(output)
 }
 
 //######################################################################################
