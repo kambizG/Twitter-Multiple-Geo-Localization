@@ -3,7 +3,7 @@
 // Topics are extracted before using a topic modeling algorithm like LDA
 // Topics are in a file containing "Statusid	TopicID" named as sid_topic.txt
 //######################################################################################
-def extract_UTMLPDC(stats: String, topics: String , partitions: String, mutual_friends: String, output: String, min_count: Int) ={
+def extract_UTMLPDC(stats: String, topics: String , partitions: String, mutual_friends: String, output: String) ={
 val SUL = sc.textFile(stats).map(_.split(",",7)).map(x => (x(0), (x(1), (x(4).toDouble, x(3).toDouble))))
 val ST = sc.textFile(topics).map(_.split("\t")).map(x => (x(0), x(1)))
 val UTL = SUL.join(ST).map({case(s,((u,loc), top)) => ((u, top), loc)})
