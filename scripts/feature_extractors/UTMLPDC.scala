@@ -31,7 +31,7 @@ val cnt = (U_PE.count / 2.0).toInt
 val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)
 val Recall = U_PE.count * 1.0/ML_filt_deg_cnt.join(test).count
 
-val pw = new PrintWriter(new File(res + "_values.txt"))
+val pw = new java.io.PrintWriter(new File(res + "_values.txt"))
 pw.write("AED\t" + AED + "\n")
 pw.write("MED\t" + MED + "\n")
 pw.write("REC\t" + Recall + "\n")
