@@ -34,7 +34,7 @@ else
         echo "###############    Final Cleaning     ###################"
         cat small_tp >> tp
         spark-shell --driver-memory 120g -i /home/kambiz/data/tw_data_all_clean/tw_loi/scripts/hierarchical_partitioning/extract_id_partitions.scala
-        cat partitions_$max_comm_size/part* >> partitions_$max_comm_size.txt
+        cat partitions_$max_comm_size/part* >> partitions/partitions_$max_comm_size.txt
         rm -r partitions_$max_comm_size/
         rm small_tp
         rm tp
