@@ -52,6 +52,13 @@ val U_PE = UDTMLP.join(test).map({case(u, ((d, t, ml, p),x)) => ((p, d, t), (u, 
 val AED = U_PE.map({case(u,e) => (1, (e, 1))}).reduceByKey((a,b) => (a._1 + b._1, a._2 + b._2)).map(x => (x._2._1 * 1.0)/x._2._2).collect
 val cnt = (U_PE.count / 2.0).toInt
 val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)
+val Recall = U_PE.count * 1.0/ML_filt_deg_cnt.join(test).count
+
+val pw = new PrintWriter(new File(res + "_values.txt"))
+pw.write("AED\t" + AED + "\n")
+pw.write("MED\t" + MED + "\n")
+pw.write("REC\t" + Recall + "\n")
+pw.close
 
 val temp1 = U_PE.map(x => (Math.floor(x._2 * 10)/10, 1.0)).reduceByKey(_+_)
 val temp2 = sc.parallelize(Array(0.0 to 60.0 by 0.1)).flatMap(x => x).map(x => (Math.floor(x*10)/10,0.0))
