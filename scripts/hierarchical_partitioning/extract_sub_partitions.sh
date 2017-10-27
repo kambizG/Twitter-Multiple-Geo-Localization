@@ -14,7 +14,7 @@ else
         while [ ! $v = "0" ]
         do
                 echo "################    Extract Sub-Partitions     ####################"
-                spark-shell --driver-memory 120g -i ./scripts/extract_sub_partitions.scala
+                spark-shell --driver-memory 120g -i /home/kambiz/data/tw_data_all_clean/tw_loi/scripts/hierarchical_partitioning/extract_sub_partitions.scala
                 echo "###############    Partition Sub-Partitions     ###################"
                 rm tp
                 v="$(head -1 count.txt)"
@@ -33,7 +33,7 @@ else
         done
         echo "###############    Final Cleaning     ###################"
         cat small_tp >> tp
-        spark-shell --driver-memory 120g -i ./scripts/extract_id_partitions.scala
+        spark-shell --driver-memory 120g -i /home/kambiz/data/tw_data_all_clean/tw_loi/scripts/hierarchical_partitioning/extract_id_partitions.scala
         cat partitions_$max_comm_size/part* >> partitions_$max_comm_size.txt
         rm -r partitions_$max_comm_size/
         rm small_tp
