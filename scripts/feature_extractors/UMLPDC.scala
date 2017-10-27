@@ -32,9 +32,9 @@ val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)
 val Recall = U_PE.count * 1.0/ML_filt_deg_cnt.join(test).count
 
 val pw = new java.io.PrintWriter(new java.io.File(res + "_values.txt"))
-pw.write("AED\t" + AED + "\n")
-pw.write("MED\t" + MED + "\n")
-pw.write("REC\t" + Recall + "\n")
+pw.write("AED\t" + AED.toDouble + "\n")
+pw.write("MED\t" + MED.toDouble + "\n")
+pw.write("REC\t" + Recall.toDouble + "\n")
 pw.close
 
 val temp1 = U_PE.map(x => (Math.floor(x._2 * 10)/10, 1.0)).reduceByKey(_+_)
