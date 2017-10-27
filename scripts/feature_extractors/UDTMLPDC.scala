@@ -49,15 +49,15 @@ val train = split.map({case(p,(tr,ts)) => (tr)}).flatMap(x => x).map(x => (x,1))
 val test = split.map({case(p,(tr,ts)) => (ts)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
 val PDTML = UDTMLP.join(train).map({case(u,((d, t, ml, p),x)) => ((p, d, t), ml)}).groupByKey().map({case(pdt, ls) => (pdt, geometric_median(ls.toList))})
 val U_PE = UDTMLP.join(test).map({case(u, ((d, t, ml, p),x)) => ((p, d, t), (u, ml))}).join(PDTML).map({case(pdt, ((u, ml), pml)) => ((u,pdt), geoDistance_points(ml, pml))})
-val AED = U_PE.map({case(u,e) => (1, (e, 1))}).reduceByKey((a,b) => (a._1 + b._1, a._2 + b._2)).map(x => (x._2._1 * 1.0)/x._2._2).collect
+val AED = U_PE.map({case(u,e) => (1, (e, 1))}).reduceByKey((a,b) => (a._1 + b._1, a._2 + b._2)).map(x => (x._2._1 * 1.0)/x._2._2).first.toDouble
 val cnt = (U_PE.count / 2.0).toInt
-val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)
-val Recall = U_PE.count * 1.0/ML_filt_deg_cnt.join(test).count
+val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)(0).toDouble
+val Recall = (U_PE.count * 1.0/UDTMLP.join(test).count).toDouble
 
 val pw = new java.io.PrintWriter(new java.io.File(res + "_values.txt"))
-pw.write("AED\t" + AED.toDouble + "\n")
-pw.write("MED\t" + MED.toDouble + "\n")
-pw.write("REC\t" + Recall.toDouble + "\n")
+pw.write("AED\t" + AED + "\n")
+pw.write("MED\t" + MED + "\n")
+pw.write("REC\t" + Recall + "\n")
 pw.close
 
 val temp1 = U_PE.map(x => (Math.floor(x._2 * 10)/10, 1.0)).reduceByKey(_+_)
