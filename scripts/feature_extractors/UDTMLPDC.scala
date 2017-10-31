@@ -47,7 +47,7 @@ var UDTMLP = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (u, (d, t,
 if(pid != -1)
  UDTMLP = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (u, (d, t, ml, p))}).filter({case (u, (d, t, ml, p)) => p.toInt == pid })
 
-val split = UDTMLP.map({case(u,(d,t, ml,p)) => (p,u)}).groupByKey().map(x => (x._1, x._2.toList.distinct)).filter(_._2.size > 40).map({case(p,u) => (p, u.splitAt((u.size * 0.7).toInt))})
+val split = UDTMLP.map({case(u,(d,t, ml,p)) => (p,u)}).groupByKey().map(x => (x._1, x._2.toList.distinct)).filter(_._2.size > 100).map({case(p,u) => (p, u.splitAt((u.size * 0.7).toInt))})
 val train = split.map({case(p,(tr,ts)) => (tr)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
 val test = split.map({case(p,(tr,ts)) => (ts)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
 val PDTML = UDTMLP.join(train).map({case(u,((d, t, ml, p),x)) => ((p, d, t), ml)}).groupByKey().map({case(pdt, ls) => (pdt, geometric_median(ls.toList))})
