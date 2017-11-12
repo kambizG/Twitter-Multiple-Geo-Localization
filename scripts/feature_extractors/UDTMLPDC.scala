@@ -17,6 +17,7 @@ UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d
 }else if(timeSpan == "1H"){
 UDTL = UDL.map({case(u,(d,l)) => (u, (d.getDay, d.getHours, l))}).map({case(u,(d,t,l)) => (u, (if(daySpan == "DAILY") d else if(d % 6 > 0) 1 else 0, t , l))})
 }
+
 val UDTML = UDTL.map({case(u,(d, t, l)) => ((u, d, t), l)}).groupByKey().map({case((u, d, t),ls) => (u,(d, t, geometric_median(ls.toList)))})
 val UP = sc.textFile(partitions).map(_.split(",")).map(x => (x(0),x(1)))
 val UD = sc.textFile(mutual_friends).map(x => (x.split(",")(0), 1)).reduceByKey(_+_)
@@ -32,7 +33,7 @@ UDTMLPDC.map({case(u, ((((d, t, (lat, lon)), p), deg),mc)) => u + "," + d + "," 
 // day = {0="WE", 1="WD"}
 // time = {H, W, L = 0, 1, 2} | {3H = 0, 1, ..., 8} | {1H = 0, 1, ..., 23}
 //######################################################################################
-def extract_CDF_UDTMLPDC(in: String, res: String, minDeg: Int = 0, maxDeg: Int = Int.MaxValue, minMsgCnt: Int = 0, maxMsgCnt: Int = Int.MaxValue, day: Int = -1, time: Int = -1, pid: Int, minParSize: Int) = {
+def extract_CDF_UDTMLPDC(in: String, res: String, minDeg: Int = 0, maxDeg: Int = Int.MaxValue, minMsgCnt: Int = 0, maxMsgCnt: Int = Int.MaxValue, day: Int = -1, time: Int = -1, pid: Int, minParSize: Int, min_par_msg_cnt: Int, max_par_msg_cnt: Int) = {
 val ML = sc.textFile(in).map(_.split(",")).map(x => (x(0), (x(1), x(2), (x(3).toDouble,x(4).toDouble), x(5), x(6).toInt, x(7).toInt)))
 var ML_filt_deg_cnt = ML.filter({case(u, (d, t, ml, p, deg, cnt)) => deg > minDeg && deg < maxDeg && cnt > minMsgCnt && cnt < maxMsgCnt})
 if(day != -1)
@@ -43,7 +44,10 @@ if(day != -1)
 else if(time != -1)
   ML_filt_deg_cnt = ML.filter({case(u, (d, t, ml, p, deg, cnt)) => deg > minDeg && deg < maxDeg && cnt > minMsgCnt && cnt < maxMsgCnt && t.toInt == time})
 
-var UDTMLP = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (u, (d, t, ml, p))})
+val temp = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (p, (d, t, ml, u))})
+val valid_partitions = extract_valid_partitions("partitions/partitions_inf.txt", "stats.txt", 5, 15, day, time, 50)
+var UDTMLP = temp.join(valid_partitions).map({case(p, ((d, t, ml, u), x)) => (u, (d, t, ml, p))})
+//var UDTMLP = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (u, (d, t, ml, p))})
 if(pid != -1)
  UDTMLP = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (u, (d, t, ml, p))}).filter({case (u, (d, t, ml, p)) => p.toInt == pid })
 
