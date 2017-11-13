@@ -258,7 +258,7 @@ return res
 // The limit on message count is specifiecd and min and max limits. 
 // The limit is on ratio of the message counts in each partition in specific time-slot
 //######################################################################################
-def extract_valid_partitions(partitions: String, stats: String, min_par_msg_cnt: Int, max_par_msg_cnt: Int, day: Int, time: Int, min_par_cnt: Int): org.apache.spark.rdd.RDD[(String, Double)]= {
+def extract_valid_partitions(partitions: String, stats: String, min_avg_msg_cnt: Int, max_avg_msg_cnt: Int, day: Int, time: Int, min_par_cnt: Int): org.apache.spark.rdd.RDD[(String, Double)]= {
 val user_part = sc.textFile(partitions).map(_.split(",")).map(x => (x(0), x(1)))
 val dateparser = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
 val status = sc.textFile(stats).map(_.split(",",7)).map(x => (x(1), dateparser.parse(x(2)))).map({case(id,d) => (id, (d.getDay, d.getHours))}).map({case(u,(d,t)) => (u, (if(d % 6 > 0) 1 else 0, if(t - 2 < 6) 0 else if (t - 7 < 12) 1 else 2))})
