@@ -1,4 +1,4 @@
-PATH=$PATH:/home/kambiz/data/tw_data_all_clean/clustering_programs_5_2/bin:/home/kambiz/spark-1.6.2/bin/
+PATH=$PATH:/home/kambiz/data/tw_data_all_clean/clustering_programs_5_2/bin:/home/kambiz/data/spark-2.2.0-bin-hadoop2.7/bin/
 if [ $# -eq "0" ]
 then
 echo "Max Partition Size is required!"
