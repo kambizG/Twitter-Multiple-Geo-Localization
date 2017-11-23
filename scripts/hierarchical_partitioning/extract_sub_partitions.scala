@@ -26,4 +26,4 @@ val pw = new PrintWriter(new File("count.txt" ))
 pw.write(com_non_star.size + "\n")
 pw.close
 com_non_star.foreach(x => extract_sub_network(x, com_edges))
-exit
+System.exit(0)
