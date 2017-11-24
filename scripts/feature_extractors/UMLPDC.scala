@@ -20,7 +20,8 @@ UMLPDC.map({case(u, ((((lat, lon), p), deg), mc)) => u + "," + lat + "," + lon +
 def extract_CDF_UMLPDC(in: String, res: String, minDeg: Int = 0, maxDeg: Int = Int.MaxValue, minMsgCnt: Int = 0, maxMsgCnt: Int = Int.MaxValue, pid: Int, minParSize: Int) = {
 //val ML = sc.textFile(in).map(_.split(",")).map(x => (x(0), ((x(1).toDouble,x(2).toDouble), x(3), x(4).toInt, x(5).toInt))).filter({case(u, (ml, p, deg, cnt)) => deg > minDeg && deg < maxDeg && cnt > minMsgCnt && cnt < maxMsgCnt})
 //val UDTMLP = ML.map({case(u, (ml, p, deg, cnt)) => (u, (ml, p))})
-var UMLP = sc.textFile(in).map(_.split(",")).filter(x => x(4).toInt > minDeg && x(4).toInt < maxDeg && x(5).toInt > minMsgCnt && x(5).toInt < maxMsgCnt).map(x => (x(0), ((x(1).toDouble,x(2).toDouble), x(3))))
+val stats = sc.textFile(in).map(_.split(",")).map(x => (x(0), ((x(1), x(2)), x(3), x(4).toInt, x(5).toInt))) 
+var UMLP = stats.filter({case(u (ml, p, d, c)) => d > minDeg && d < maxDeg && c > minMsgCnt && c < maxMsgCnt).map({case(u (ml, p, d, c))}x => (u, (ml, p)))
 if(pid != -1)
  UMLP = sc.textFile(in).map(_.split(",")).filter(x => x(4).toInt > minDeg && x(4).toInt < maxDeg && x(5).toInt > minMsgCnt && x(5).toInt < maxMsgCnt && x(3).toInt == pid).map(x => (x(0), ((x(1).toDouble, x(2).toDouble), x(3))))
 
@@ -32,7 +33,7 @@ val U_PE = UMLP.join(test).map({case(u, ((ml,p),x)) => (p, (u, ml))}).join(PML).
 val AED = U_PE.map({case(u,e) => (1, (e, 1))}).reduceByKey((a,b) => (a._1 + b._1, a._2 + b._2)).map(x => (x._2._1 * 1.0)/x._2._2).first.toDouble
 val cnt = (U_PE.count / 2.0).toInt
 val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)(0).toDouble
-val Recall = (U_PE.count * 1.0/UMLP.join(test).count).toDouble
+val Recall = UMLP.groupByKey().count * 1.0/ stats.groupByKey().count
 
 val pw = new java.io.PrintWriter(new java.io.File(res + "_values.txt"))
 pw.write("AED\t" + AED + "\n")
