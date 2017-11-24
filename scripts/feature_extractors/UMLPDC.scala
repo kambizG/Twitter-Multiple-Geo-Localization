@@ -20,10 +20,10 @@ UMLPDC.map({case(u, ((((lat, lon), p), deg), mc)) => u + "," + lat + "," + lon +
 def extract_CDF_UMLPDC(in: String, res: String, minDeg: Int = 0, maxDeg: Int = Int.MaxValue, minMsgCnt: Int = 0, maxMsgCnt: Int = Int.MaxValue, pid: Int, minParSize: Int) = {
 //val ML = sc.textFile(in).map(_.split(",")).map(x => (x(0), ((x(1).toDouble,x(2).toDouble), x(3), x(4).toInt, x(5).toInt))).filter({case(u, (ml, p, deg, cnt)) => deg > minDeg && deg < maxDeg && cnt > minMsgCnt && cnt < maxMsgCnt})
 //val UDTMLP = ML.map({case(u, (ml, p, deg, cnt)) => (u, (ml, p))})
-val stats = sc.textFile(in).map(_.split(",")).map(x => (x(0), ((x(1), x(2)), x(3), x(4).toInt, x(5).toInt)))
+val stats = sc.textFile(in).map(_.split(",")).map(x => (x(0), ((x(1).toDouble, x(2).toDouble), x(3), x(4).toInt, x(5).toInt)))
 var UMLP = stats.filter({case(u, (ml, p, d, c)) => d > minDeg && d < maxDeg && c > minMsgCnt && c < maxMsgCnt}).map({case(u, (ml, p, d, c)) => (u, (ml, p))})
 if(pid != -1)
- UMLP = sc.textFile(in).map(_.split(",")).filter(x => x(4).toInt > minDeg && x(4).toInt < maxDeg && x(5).toInt > minMsgCnt && x(5).toInt < maxMsgCnt && x(3).toInt == pid).map(x => (x(0), ((x(1).toDouble, x(2).toDouble), x(3))))
+ UMLP = stats.filter({case(u, (ml, p, d, c)) => d > minDeg && d < maxDeg && c > minMsgCnt && c < maxMsgCnt && p == pid}).map({case(u, (ml, p, d, c)) => (u, (ml, p))})
 
 val split = UMLP.map({case(u,(ml,p)) => (p,u)}).groupByKey().filter(_._2.size > minParSize).map({case(p,u) => (p, u.splitAt((u.size * 0.7).toInt))})
 val train = split.map({case(p,(tr,ts)) => (tr)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
