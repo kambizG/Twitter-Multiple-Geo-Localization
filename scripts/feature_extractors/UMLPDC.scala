@@ -33,7 +33,7 @@ val U_PE = UMLP.join(test).map({case(u, ((ml,p),x)) => (p, (u, ml))}).join(PML).
 val AED = U_PE.map({case(u,e) => (1, (e, 1))}).reduceByKey((a,b) => (a._1 + b._1, a._2 + b._2)).map(x => (x._2._1 * 1.0)/x._2._2).first.toDouble
 val cnt = (U_PE.count / 2.0).toInt
 val MED = U_PE.map(_._2).sortBy(x => x).take(cnt).drop(cnt -1)(0).toDouble
-val Recall = UMLP.groupByKey().count * 1.0/ stats.groupByKey().count
+val Recall = split.groupByKey().count * 1.0/ stats.groupByKey().count
 
 val pw = new java.io.PrintWriter(new java.io.File(res + "_values.txt"))
 pw.write("AED\t" + AED + "\n")
