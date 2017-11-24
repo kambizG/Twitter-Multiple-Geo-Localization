@@ -21,7 +21,7 @@ def extract_CDF_UMLPDC(in: String, res: String, minDeg: Int = 0, maxDeg: Int = I
 //val ML = sc.textFile(in).map(_.split(",")).map(x => (x(0), ((x(1).toDouble,x(2).toDouble), x(3), x(4).toInt, x(5).toInt))).filter({case(u, (ml, p, deg, cnt)) => deg > minDeg && deg < maxDeg && cnt > minMsgCnt && cnt < maxMsgCnt})
 //val UDTMLP = ML.map({case(u, (ml, p, deg, cnt)) => (u, (ml, p))})
 val stats = sc.textFile(in).map(_.split(",")).map(x => (x(0), ((x(1), x(2)), x(3), x(4).toInt, x(5).toInt)))
-var UMLP = stats.filter({case(u (ml, p, d, c)) => d > minDeg && d < maxDeg && c > minMsgCnt && c < maxMsgCnt}).map({case(u (ml, p, d, c)) => (u, (ml, p))})
+var UMLP = stats.filter({case(u, (ml, p, d, c)) => d > minDeg && d < maxDeg && c > minMsgCnt && c < maxMsgCnt}).map({case(u, (ml, p, d, c)) => (u, (ml, p))})
 if(pid != -1)
  UMLP = sc.textFile(in).map(_.split(",")).filter(x => x(4).toInt > minDeg && x(4).toInt < maxDeg && x(5).toInt > minMsgCnt && x(5).toInt < maxMsgCnt && x(3).toInt == pid).map(x => (x(0), ((x(1).toDouble, x(2).toDouble), x(3))))
 
