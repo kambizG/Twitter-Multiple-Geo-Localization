@@ -78,7 +78,7 @@ temp3.map(x => (0, x)).groupByKey().map(x => CDF(x._2.toList)).flatMap(x => x).m
 //######################################################################################
 // Extract and returns MED for combination of all features
 //######################################################################################
-def extract_MED_UTDTMLPDC(in: String, minDeg: Int = 0, maxDeg: Int = Int.MaxValue, minMsgCnt: Int = 0, maxMsgCnt: Int = Int.MaxValue, day: Int = -1, time: Int = -1, pid: Int, minParSize: Int): (Double, Double) = {
+def extract_MED_UDTMLPDC(in: String, minDeg: Int = 0, maxDeg: Int = Int.MaxValue, minMsgCnt: Int = 0, maxMsgCnt: Int = Int.MaxValue, day: Int = -1, time: Int = -1, pid: Int, minParSize: Int): (Double, Double) = {
 val ML = sc.textFile(in).map(_.split(",")).map(x => (x(0), (x(1), x(2), x(3), (x(4).toDouble, x(5).toDouble), x(6), x(7).toInt, x(8).toInt)))
 var ML_filt_deg_cnt = ML.filter({case(u, (top, d, t, ml, p, deg, cnt)) => deg > minDeg && deg < maxDeg && cnt > minMsgCnt && cnt < maxMsgCnt})
 if(day != -1)
