@@ -268,3 +268,18 @@ val part_count = user_part.map(x => (x._2, 1)).reduceByKey(_+_).filter(_._2 > mi
 val par_msg_ratio = par_msg_cnt.join(part_count).map(x => (x._1, x._2._1 * 1.0 / x._2._2)).filter(x => x._2 > min_par_avg_msg_cnt && x._2 < max_par_avg_msg_cnt)
 return par_msg_ratio
 }
+
+//######################################################################################
+// Extract MED and Recall for all partitions separately the result is a textFile containing: PID CNT MED REC
+//######################################################################################
+def extract_partitions_MED_REC(parts: String, in: String, output: String, min_par_size: Int) = {
+val parts = sc.textFile(parts).map(_.split(",")).map(x => (x(1),1)).reduceByKey(_+_)
+var arr = Array[(String, Int, (Double, Double))]()
+parts.filter(_._2 > minParSize).collect.foreach(x => arr :+= (x._1, x._2, extract_MED_UDTMLPDC(in, 0, 100000, 0, 100000, 1, 1, x._1.toInt, 4, 0, 100000)))
+val PCER = sc.parallelize(arr)
+PCER.map(x => x._1 + "\t" + x._2 + "\t" + x._3._1 + "\t" + x._3._2).saveAsTextFile(output)
+}
+
+//Unit Case
+//extract_partitions_MED_REC("partitions/partitions_inf.txt", "UDTMLPDC/UDTMLPDC_inf_WE_WD_N",  "CDF/PCER", 100)
+
