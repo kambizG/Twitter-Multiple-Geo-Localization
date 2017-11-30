@@ -272,8 +272,8 @@ return par_msg_ratio
 //######################################################################################
 // Extract MED and Recall for all partitions separately the result is a textFile containing: PID CNT MED REC
 //######################################################################################
-def extract_partitions_MED_REC(parts: String, in: String, output: String, min_par_size: Int) = {
-val parts = sc.textFile(parts).map(_.split(",")).map(x => (x(1),1)).reduceByKey(_+_)
+def extract_partitions_MED_REC(partitions: String, in: String, output: String, min_par_size: Int) = {
+val parts = sc.textFile(partitions).map(_.split(",")).map(x => (x(1),1)).reduceByKey(_+_)
 var arr = Array[(String, Int, (Double, Double))]()
 parts.filter(_._2 > minParSize).collect.foreach(x => arr :+= (x._1, x._2, extract_MED_UDTMLPDC(in, 0, 100000, 0, 100000, 1, 1, x._1.toInt, 4, 0, 100000)))
 val PCER = sc.parallelize(arr)
