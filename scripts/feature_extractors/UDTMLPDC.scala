@@ -89,11 +89,11 @@ if(day != -1)
 else if(time != -1)
   ML_filt_deg_cnt = ML.filter({case(u, (d, t, ml, p, deg, cnt)) => deg > minDeg && deg < maxDeg && cnt > minMsgCnt && cnt < maxMsgCnt && t.toInt == time})
 
-val temp = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (p, (d, t, ml, u))})
-val valid_partitions = extract_valid_partitions("partitions/partitions_inf.txt", "stats.txt", min_par_msg_cnt, max_par_msg_cnt, day, time, minParSize)
-var UDTMLP = temp.join(valid_partitions).map({case(p, ((d, t, ml, u), x)) => (u, (d, t, ml, p))})
-if(pid != -1)
- UDTMLP = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (u, (d, t, ml, p))}).filter({case (u, (d, t, ml, p)) => p.toInt == pid })
+//val temp = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (p, (d, t, ml, u))})
+//val valid_partitions = extract_valid_partitions("partitions/partitions_inf.txt", "stats.txt", min_par_msg_cnt, max_par_msg_cnt, day, time, minParSize)
+//var UDTMLP = temp.join(valid_partitions).map({case(p, ((d, t, ml, u), x)) => (u, (d, t, ml, p))})
+//if(pid != -1)
+val UDTMLP = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (u, (d, t, ml, p))}).filter({case (u, (d, t, ml, p)) => p.toInt == pid })
 
 val split = UDTMLP.map({case(u,(d,t, ml,p)) => (p,u)}).groupByKey().map(x => (x._1, x._2.toList.distinct)).filter(_._2.size > minParSize).map({case(p,u) => (p, u.splitAt((u.size * 0.7).toInt))})
 if(split.count == 0) return null
