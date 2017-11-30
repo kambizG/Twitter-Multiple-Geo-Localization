@@ -283,3 +283,15 @@ PCER.map(x => x._1 + "\t" + x._2 + "\t" + x._3._1 + "\t" + x._3._2).saveAsTextFi
 //Unit Case
 //extract_partitions_MED_REC("partitions/partitions_inf.txt", "UDTMLPDC/UDTMLPDC_inf_WE_WD_N",  "CDF/PCER", 100)
 
+// ################################################################
+// Extract First and Last Date in the dataset.
+// ################################################################
+def get_First_Date(stats: String): String = {
+val dateparser = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
+return sc.textFile(stats).map(_.split(",")).map(x => (dateparser.parse(x(2)).getTime,x(2))).sortBy(_._1).map(_._2).first
+}
+
+def get_Last_Date(stats: String): String = {
+val dateparser = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
+return sc.textFile(stats).map(_.split(",")).map(x => (dateparser.parse(x(2)).getTime,x(2))).sortBy(_._1, false).map(_._2).first
+}
