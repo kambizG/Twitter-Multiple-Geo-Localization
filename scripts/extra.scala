@@ -42,10 +42,8 @@ direct_friends.union(egoNet).map(x => x._1 + "," + x._2).saveAsTextFile(outPut)
 //##############################################################################################################
 //The community detection algorithm to partition the graph into multiple communities
 // python /home/kambiz/data/tw_data_all_clean/clustering_programs_5_2/select.py -n mf_lo.txt -p 4 -f result -c 1
-
-def top_n_partitions(n: Int, partition: String) = {
-val parts = sc.textFile(partition).filter(x => x.matches("^[0-9].*")).zipWithIndex().map(x => (x._2, x._1)).flatMapValues(x => x.split("\\s"))
-parts.groupByKey().map(x => (x._1, x._2.size)).sortBy(_._2,false).take(n)
+def top_n_partitions(n: Int, partition: String): Array[(String, Int)] = {
+return sc.textFile(partitions).map(x => (x.split(",")(1), 1)).reduceByKey(_+_).sortBy(_._2, false).take(n)
 }
 
 def partition_temporal_distribution(pid: Long, stats_file: String, partitions: String) = {
@@ -272,13 +270,13 @@ return par_msg_ratio
 //######################################################################################
 // Extract MED and Recall for all partitions separately the result is a textFile containing: PID CNT MED REC
 //######################################################################################
-def extract_partitions_MED_REC(partitions: String, in: String, output: String, min_par_size: Int) = {
+/*def extract_partitions_MED_REC(partitions: String, in: String, output: String, min_par_size: Int) = {
 val parts = sc.textFile(partitions).map(_.split(",")).map(x => (x(1),1)).reduceByKey(_+_)
 var arr = Array[(String, Int, (Double, Double))]()
 parts.filter(_._2 > min_par_size).collect.foreach(x => arr :+= (x._1, x._2, extract_MED_UDTMLPDC(in, 0, 100000, 0, 100000, 1, 1, x._1.toInt, 4, 0, 100000)))
 val PCER = sc.parallelize(arr)
 PCER.map(x => x._1 + "\t" + x._2 + "\t" + x._3._1 + "\t" + x._3._2).saveAsTextFile(output)
-}
+}*/
 
 //Unit Case
 //extract_partitions_MED_REC("partitions/partitions_inf.txt", "UDTMLPDC/UDTMLPDC_inf_WE_WD_N",  "CDF/PCER", 100)
