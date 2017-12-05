@@ -278,6 +278,24 @@ val par_msg_ratio = par_msg_cnt.join(part_count).map(x => (x._1, x._2._1 * 1.0 /
 return par_msg_ratio
 }
 
+
+//######################################################################################
+// Min Relative Density = partition_density * partition_size_frequency
+// partition_density = par_edges / par_all_possible_edges
+// par_all_possible_edges = (par_size * (par_size - 1)) / 2
+//######################################################################################
+def extract_partitions_with_min_relative_density(par: String, mutual_friends: String, min_rel_density: Double): org.apache.spark.rdd.RDD[(String, Double)] ={
+val partitions = sc.textFile(par).map(_.split(",")).map(x => (x(0).toLong, x(1))) 
+val par_max_edge_Count = partitions.map(x => (x._2, 1)).reduceByKey(_+_).map(x => (x._1, (x._2 * (x._2 - 1))/2))
+val mf = sc.textFile(mutual_friends).map(_.split(",")).map(x => (x(0).toLong, x(1).toLong)).filter(x => x._1 < x._2)
+val part_edge_count = mf.join(partitions).map({case(a, (b,pa)) => (b, (a,pa))}).join(partitions).filter({case(b, ((a, pa), pb)) => pa == pb}).map({case(b, ((a, pa), pb)) => (pa,1)}).reduceByKey(_+_)
+val par_density = par_max_edge_Count.join(part_edge_count).map(x => (x._1, x._2._2 * 1.0 / x._2._1))
+val count = partitions.map(x => (x._2, 1)).reduceByKey(_+_).map(_._2).sum
+val par_size_ratio = partitions.map(x => (x._2, 1)).reduceByKey(_+_).map(x => (x._1, x._2 * 1.0/count))
+val par_relative_density = par_density.join(par_size_ratio).map(x => (x._1, x._2._1 * x._2._2))
+val valid_partitions = par_relative_density.filter(_._2 > min_rel_density)
+return valid_partitions
+}
 //######################################################################################
 // Extract MED and Recall for all partitions separately the result is a textFile containing: PID CNT MED REC
 //######################################################################################

@@ -45,17 +45,12 @@ else if(time != -1)
   ML_filt_deg_cnt = ML.filter({case(u, (d, t, ml, p, deg, cnt)) => deg > minDeg && deg < maxDeg && cnt > minMsgCnt && cnt < maxMsgCnt && t.toInt == time})
 
 val temp = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (p, (d, t, ml, u))})
+
+// by size
 //val valid_partitions = extract_valid_partitions("partitions/partitions_inf.txt", "stats.txt", min_par_msg_cnt, max_par_msg_cnt, day, time, minParSize)
 
-val partitions = sc.textFile("partitions/partitions_inf.txt").map(_.split(",")).map(x => (x(0).toLong, x(1))) 
-val par_max_edge_Count = partitions.map(x => (x._2, 1)).reduceByKey(_+_).map(x => (x._1, (x._2 * (x._2 - 1))/2))
-val mf = sc.textFile("mf.txt").map(_.split(",")).map(x => (x(0).toLong, x(1).toLong)).filter(x => x._1 < x._2)
-val part_edge_count = mf.join(partitions).map({case(a, (b,pa)) => (b, (a,pa))}).join(partitions).filter({case(b, ((a, pa), pb)) => pa == pb}).map({case(b, ((a, pa), pb)) => (pa,1)}).reduceByKey(_+_)
-val par_density = par_max_edge_Count.join(part_edge_count).map(x => (x._1, x._2._2 * 1.0 / x._2._1))
-val count = partitions.map(x => (x._2, 1)).reduceByKey(_+_).map(_._2).sum
-val par_size_ratio = partitions.map(x => (x._2, 1)).reduceByKey(_+_).map(x => (x._1, x._2 * 1.0/count))
-val par_relative_density = par_density.join(par_size_ratio).map(x => (x._1, x._2._1 * x._2._2))
-val valid_partitions = par_relative_density.filter(_._2 > min_rel_density)
+// by Density
+val valid_partitions = extract_partitions_with_min_relative_density("partitions/partitions_inf.txt", "mf.txt", min_rel_density) 
 
 var UDTMLP = temp.join(valid_partitions).map({case(p, ((d, t, ml, u), x)) => (u, (d, t, ml, p))})
 //var UDTMLP = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (u, (d, t, ml, p))})
