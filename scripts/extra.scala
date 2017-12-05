@@ -44,6 +44,7 @@ direct_friends.union(egoNet).map(x => x._1 + "," + x._2).saveAsTextFile(outPut)
 // python /home/kambiz/data/tw_data_all_clean/clustering_programs_5_2/select.py -n mf_lo.txt -p 4 -f result -c 1
 def top_n_partitions(n: Int, partition: String): Array[(String, Int)] = {
 //return sc.textFile(partitions).map(x => (x.split(",")(1), 1)).reduceByKey(_+_).sortBy(_._2, false).take(n)
+return null
 }
 
 def partition_temporal_distribution(pid: Long, stats_file: String, partitions: String) = {
