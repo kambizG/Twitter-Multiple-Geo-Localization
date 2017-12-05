@@ -43,7 +43,7 @@ direct_friends.union(egoNet).map(x => x._1 + "," + x._2).saveAsTextFile(outPut)
 //The community detection algorithm to partition the graph into multiple communities
 // python /home/kambiz/data/tw_data_all_clean/clustering_programs_5_2/select.py -n mf_lo.txt -p 4 -f result -c 1
 def top_n_partitions(n: Int, partition: String): Array[(String, Int)] = {
-return sc.textFile(partitions).map(x => (x.split(",")(1), 1)).reduceByKey(_+_).sortBy(_._2, false).take(n)
+//return sc.textFile(partitions).map(x => (x.split(",")(1), 1)).reduceByKey(_+_).sortBy(_._2, false).take(n)
 }
 
 def partition_temporal_distribution(pid: Long, stats_file: String, partitions: String) = {
@@ -63,7 +63,7 @@ hourD.map(_._2).collect
 //#####################################################################################
 // Get Partition Message Count: Given a partition id return the count of messages published by users in that partition
 //#####################################################################################
-def get_partition_message_count(stats: String, partitions: String, pid: String): Double ={
+def get_partition_message_count(stats: String, partitions: String, pid: String): Doble ={
 val user_stats = sc.textFile(stats).map(_.split(",",7)).map(x => (x(1),1)).reduceByKey(_+_)
 val parts = sc.textFile(partitions).map(_.split(",")).map(x => (x(0), x(1))).filter(_._2 == pid)
 return parts.join(user_stats).map(_._2._2).sum

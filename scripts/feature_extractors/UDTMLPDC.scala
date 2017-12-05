@@ -44,7 +44,7 @@ if(day != -1)
 else if(time != -1)
   ML_filt_deg_cnt = ML.filter({case(u, (d, t, ml, p, deg, cnt)) => deg > minDeg && deg < maxDeg && cnt > minMsgCnt && cnt < maxMsgCnt && t.toInt == time})
 
-//val temp = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (p, (d, t, ml, u))})
+val temp = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (p, (d, t, ml, u))})
 //val valid_partitions = extract_valid_partitions("partitions/partitions_inf.txt", "stats.txt", min_par_msg_cnt, max_par_msg_cnt, day, time, minParSize)
 
 val partitions = sc.textFile("partitions/partitions_inf.txt").map(_.split(",")).map(x => (x(0).toLong, x(1))) 
