@@ -61,6 +61,16 @@ hourD.map(_._2).collect
 //partition_temporal_distribution(3119, "tw_lo.txt", "tp")
 
 //#####################################################################################
+// Get Partition Message Count: Given a partition id return the count of messages published by users in that partition
+//#####################################################################################
+def get_partition_message_count(stats: String, partitions: String, pid: String): Double ={
+val user_stats = sc.textFile(stats).map(_.split(",",7)).map(x => (x(1),1)).reduceByKey(_+_)
+val parts = sc.textFile(partitions).map(_.split(",")).map(x => (x(0), x(1))).filter(_._2 == pid)
+return parts.join(user_stats).map(_._2._2).sum
+}
+
+
+//#####################################################################################
 // geoMetric Distance
 //#####################################################################################
 def deg2rad(deg:Double): Double = {return (deg * Math.PI / 180.0)}
