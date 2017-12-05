@@ -46,11 +46,13 @@ else if(time != -1)
 
 val temp = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (p, (d, t, ml, u))})
 
-// by size
-//val valid_partitions = extract_valid_partitions("partitions/partitions_inf.txt", "stats.txt", min_par_msg_cnt, max_par_msg_cnt, day, time, minParSize)
-
 // by Density
-val valid_partitions = extract_partitions_with_min_relative_density("partitions/partitions_inf.txt", "mf.txt", min_rel_density) 
+var valid_partitions = extract_partitions_with_min_relative_density("partitions/partitions_inf.txt", "mf.txt", min_rel_density)
+
+// by size
+if(minParSize != -1)
+	valid_partitions = extract_valid_partitions("partitions/partitions_inf.txt", "stats.txt", min_par_msg_cnt, max_par_msg_cnt, day, time, minParSize)
+
 
 var UDTMLP = temp.join(valid_partitions).map({case(p, ((d, t, ml, u), x)) => (u, (d, t, ml, p))})
 //var UDTMLP = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (u, (d, t, ml, p))})
