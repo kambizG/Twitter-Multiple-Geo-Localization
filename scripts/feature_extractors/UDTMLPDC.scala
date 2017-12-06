@@ -33,7 +33,7 @@ UDTMLPDC.map({case(u, ((((d, t, (lat, lon)), p), deg),mc)) => u + "," + d + "," 
 // day = {0="WE", 1="WD"}
 // time = {H, W, L = 0, 1, 2} | {3H = 0, 1, ..., 8} | {1H = 0, 1, ..., 23}
 //######################################################################################
-def extract_CDF_UDTMLPDC(in: String, res: String, minDeg: Int = 0, maxDeg: Int = Int.MaxValue, minMsgCnt: Int = 0, maxMsgCnt: Int = Int.MaxValue, day: Int = -1, time: Int = -1, pid: Int, minParSize: Int, min_par_msg_cnt: Int, max_par_msg_cnt: Int, min_rel_density: Double) = {
+def extract_CDF_UDTMLPDC(in: String, res: String, minDeg: Int = 0, maxDeg: Int = Int.MaxValue, minMsgCnt: Int = 0, maxMsgCnt: Int = Int.MaxValue, day: Int = -1, time: Int = -1, pid: Int, minParSize: Int, maxParSize: Int, min_par_msg_cnt: Int, max_par_msg_cnt: Int, min_rel_density: Double) = {
 val ML = sc.textFile(in).map(_.split(",")).map(x => (x(0), (x(1), x(2), (x(3).toDouble,x(4).toDouble), x(5), x(6).toInt, x(7).toInt)))
 var ML_filt_deg_cnt = ML.filter({case(u, (d, t, ml, p, deg, cnt)) => deg > minDeg && deg < maxDeg && cnt > minMsgCnt && cnt < maxMsgCnt})
 if(day != -1)
@@ -51,7 +51,7 @@ var valid_partitions = extract_partitions_with_min_relative_density("partitions/
 
 // by size
 if(minParSize != -1)
-	valid_partitions = extract_valid_partitions("partitions/partitions_inf.txt", "stats.txt", min_par_msg_cnt, max_par_msg_cnt, day, time, minParSize)
+	valid_partitions = extract_valid_partitions("partitions/partitions_inf.txt", "stats.txt", min_par_msg_cnt, max_par_msg_cnt, day, time, minParSize, maxParSize)
 
 
 var UDTMLP = temp.join(valid_partitions).map({case(p, ((d, t, ml, u), x)) => (u, (d, t, ml, p))})

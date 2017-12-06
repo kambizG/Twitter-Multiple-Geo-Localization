@@ -267,13 +267,13 @@ return res
 // The limit on message count is specified as min and max limits. 
 // The limit is on ratio of the message counts in each partition in specific time-slot
 //######################################################################################
-def extract_valid_partitions(partitions: String, stats: String, min_par_avg_msg_cnt: Int, max_par_avg_msg_cnt: Int, day: Int, time: Int, min_par_cnt: Int): org.apache.spark.rdd.RDD[(String, Double)]= {
+def extract_valid_partitions(partitions: String, stats: String, min_par_avg_msg_cnt: Int, max_par_avg_msg_cnt: Int, day: Int, time: Int, min_par_cnt: Int, max_par_cnt: Int): org.apache.spark.rdd.RDD[(String, Double)]= {
 val user_part = sc.textFile(partitions).map(_.split(",")).map(x => (x(0), x(1)))
 val dateparser = new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
 val status = sc.textFile(stats).map(_.split(",",7)).map(x => (x(1), dateparser.parse(x(2)))).map({case(id,d) => (id, (d.getDay, d.getHours))}).map({case(u,(d,t)) => (u, (if(d % 6 > 0) 1 else 0, if(t - 2 < 6) 0 else if (t - 7 < 12) 1 else 2))})
 val st_filt = status.filter({case(id, (d, t)) => d == day && t == time})
 val par_msg_cnt = user_part.join(st_filt).map(x => (x._2._1, 1)).reduceByKey(_+_)
-val part_count = user_part.map(x => (x._2, 1)).reduceByKey(_+_).filter(_._2 > min_par_cnt)
+val part_count = user_part.map(x => (x._2, 1)).reduceByKey(_+_).filter(x => x._2 > min_par_cnt && x._2 < max_par_cnt)
 val par_msg_ratio = par_msg_cnt.join(part_count).map(x => (x._1, x._2._1 * 1.0 / x._2._2)).filter(x => x._2 > min_par_avg_msg_cnt && x._2 < max_par_avg_msg_cnt)
 return par_msg_ratio
 }
