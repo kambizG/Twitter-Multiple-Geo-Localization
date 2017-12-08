@@ -44,18 +44,18 @@ if(day != -1)
 else if(time != -1)
   ML_filt_deg_cnt = ML.filter({case(u, (d, t, ml, p, deg, cnt)) => deg > minDeg && deg < maxDeg && cnt > minMsgCnt && cnt < maxMsgCnt && t.toInt == time})
 
-val temp = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (p, (d, t, ml, u))})
+//val temp = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (p, (d, t, ml, u))})
 
 // by Density
-var valid_partitions = extract_partitions_with_min_relative_density("partitions/partitions_inf.txt", "mf.txt", min_rel_density)
+//var valid_partitions = extract_partitions_with_min_relative_density("partitions/partitions_inf.txt", "mf.txt", min_rel_density)
 
 // by size
-if(minParSize != -1)
-	valid_partitions = extract_valid_partitions("partitions/partitions_inf.txt", "stats.txt", min_par_msg_cnt, max_par_msg_cnt, day, time, minParSize, maxParSize)
+//if(minParSize != -1)
+//	valid_partitions = extract_valid_partitions("partitions/partitions_inf.txt", "stats.txt", min_par_msg_cnt, max_par_msg_cnt, day, time, minParSize, maxParSize)
 
 
-var UDTMLP = temp.join(valid_partitions).map({case(p, ((d, t, ml, u), x)) => (u, (d, t, ml, p))})
-//var UDTMLP = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (u, (d, t, ml, p))})
+//var UDTMLP = temp.join(valid_partitions).map({case(p, ((d, t, ml, u), x)) => (u, (d, t, ml, p))})
+var UDTMLP = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (u, (d, t, ml, p))})
 if(pid != -1)
  UDTMLP = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (u, (d, t, ml, p))}).filter({case (u, (d, t, ml, p)) => p.toInt == pid })
 
