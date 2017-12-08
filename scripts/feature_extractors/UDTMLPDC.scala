@@ -44,7 +44,7 @@ if(day != -1)
 else if(time != -1)
   ML_filt_deg_cnt = ML.filter({case(u, (d, t, ml, p, deg, cnt)) => deg > minDeg && deg < maxDeg && cnt > minMsgCnt && cnt < maxMsgCnt && t.toInt == time})
 
-//val temp = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (p, (d, t, ml, u))})
+val temp = ML_filt_deg_cnt.map({case(u, (d, t, ml, p, deg, cnt)) => (p, (d, t, ml, u))})
 
 // by Density
 var valid_partitions = extract_partitions_with_min_relative_density("partitions/partitions_inf.txt", "mf.txt", min_rel_density)
