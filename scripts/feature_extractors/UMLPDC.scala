@@ -25,7 +25,7 @@ var UMLP = stats.filter({case(u, (ml, p, d, c)) => d > minDeg && d < maxDeg && c
 if(pid != -1)
  UMLP = stats.filter({case(u, (ml, p, d, c)) => d > minDeg && d < maxDeg && c > minMsgCnt && c < maxMsgCnt && p == pid}).map({case(u, (ml, p, d, c)) => (u, (ml, p))})
 
-val split = UMLP.map({case(u,(ml,p)) => (p,u)}).groupByKey().filter(_._2.size > minParSize).map({case(p,u) => (p, u.splitAt((u.size * 0.7).toInt))})
+val split = UMLP.map({case(u,(ml,p)) => (p,u)}).groupByKey().filter(_._2.size > minParSize).map({case(p,u) => (p, u.splitAt((u.size * 0.8).toInt))})
 val train = split.map({case(p,(tr,ts)) => (tr)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
 val test = split.map({case(p,(tr,ts)) => (ts)}).flatMap(x => x).map(x => (x,1)).reduceByKey(_+_)
 val PML = UMLP.join(train).map({case(u,((ml, p),x)) => (p, ml)}).groupByKey().map({case(p, ls) => (p, geometric_median(ls.toList))})
